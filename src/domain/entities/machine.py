@@ -4,6 +4,7 @@ from typing import Self
 from src.domain.entities.owner import OwnerEntity
 
 from src.domain.value_objects.uuid import UUIDValueObject
+from src.domain.value_objects.coins import CoinsValueObject, CoinTypes
 
 class MachineState(Enum):
     READY = 'READY'
@@ -15,14 +16,14 @@ class MachineAggregate:
 
     def __init__(self, id: str, owner: OwnerEntity, state: MachineState, coin_01_qty: int, coin_05_qty: int, coin_10_qty: int, coin_25_qty: int, coin_50_qty: int, coin_100_qty: int):
         self.__id: UUIDValueObject = UUIDValueObject.create(id)
-        self.__owner = owner
+        self.__owner: OwnerEntity = owner
         self.__state = state
-        self.__coin_01_qty = coin_01_qty
-        self.__coin_05_qty = coin_05_qty
-        self.__coin_10_qty = coin_10_qty
-        self.__coin_25_qty = coin_25_qty
-        self.__coin_50_qty = coin_50_qty
-        self.__coin_100_qty = coin_100_qty
+        self.__coin_01: CoinsValueObject = CoinsValueObject.create(CoinTypes.COIN_01, coin_01_qty)
+        self.__coin_05: CoinsValueObject = CoinsValueObject.create(CoinTypes.COIN_05, coin_05_qty)
+        self.__coin_10: CoinsValueObject = CoinsValueObject.create(CoinTypes.COIN_10, coin_10_qty)
+        self.__coin_25: CoinsValueObject = CoinsValueObject.create(CoinTypes.COIN_25, coin_25_qty)
+        self.__coin_50: CoinsValueObject = CoinsValueObject.create(CoinTypes.COIN_50, coin_50_qty)
+        self.__coin_100: CoinsValueObject = CoinsValueObject.create(CoinTypes.COIN_100, coin_100_qty)
     
     @classmethod
     def create(cls, id: str, owner: OwnerEntity, state: MachineState, coin_01_qty: int, coin_05_qty: int, coin_10_qty: int, coin_25_qty: int, coin_50_qty: int, coin_100_qty: int) -> Self:
@@ -30,29 +31,29 @@ class MachineAggregate:
         instance.__init__(id, owner, state, coin_01_qty, coin_05_qty, coin_10_qty, coin_25_qty, coin_50_qty, coin_100_qty)
         return instance
     
-    def get_id(self) -> str:
-        return self.__id.get_value()
+    def get_id(self) -> UUIDValueObject:
+        return self.__id
 
     def get_state(self) -> MachineState:
         return self.__state
     
-    def get_coin_01_qty(self) -> int:
-        return self.__coin_01_qty
+    def get_coin_01(self) -> CoinsValueObject:
+        return self.__coin_01
 
-    def get_coin_05_qty(self) -> int:
-        return self.__coin_05_qty
+    def get_coin_05(self) -> CoinsValueObject:
+        return self.__coin_05
     
-    def get_coin_10_qty(self) -> int:
-        return self.__coin_10_qty
+    def get_coin_10(self) -> CoinsValueObject:
+        return self.__coin_10
     
-    def get_coin_25_qty(self) -> int:
-        return self.__coin_25_qty
+    def get_coin_25(self) -> CoinsValueObject:
+        return self.__coin_25
     
-    def get_coin_50_qty(self) -> int:
-        return self.__coin_50_qty
+    def get_coin_50(self) -> CoinsValueObject:
+        return self.__coin_50
     
-    def get_coin_100_qty(self) -> int:
-        return self.__coin_100_qty
+    def get_coin_100(self) -> CoinsValueObject:
+        return self.__coin_100
     
     def get_owner(self) -> OwnerEntity:
         return self.__owner

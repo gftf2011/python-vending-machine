@@ -18,11 +18,11 @@ class OwnerEntity:
         instance.__init__(id, full_name, email)
         return instance
     
-    def get_id(self) -> str:
-        return self.__id.get_value()
+    def get_id(self) -> UUIDValueObject:
+        return self.__id
 
     def get_full_name(self) -> str:
         return self.__full_name
     
-    def get_email(self) -> str:
-        return self.__email.get_value()
+    def get_email(self) -> EmailValueObject:
+        return self.__email

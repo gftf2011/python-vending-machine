@@ -11,7 +11,7 @@ def test_should_raise_exception_by_using_constructor():
 def test_should_get_id():
     owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
     machine = MachineAggregate.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0)
-    assert machine.get_id() == "a8351752-ec32-4578-bdb6-883d703cbee7"
+    assert machine.get_id().get_value() == "a8351752-ec32-4578-bdb6-883d703cbee7"
 
 def test_should_get_state():
     owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
@@ -30,7 +30,32 @@ def test_should_finish_dispense_product():
     machine.finish_dispense_product()
     assert machine.get_state() == MachineState.READY
 
-def test_should_get_coin_01_qty():
+def test_should_get_coin_01():
     owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
     machine = MachineAggregate.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0)
-    assert machine.get_coin_01_qty() == 0
+    assert machine.get_coin_01().get_qty() == 0
+
+def test_should_get_coin_05():
+    owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+    machine = MachineAggregate.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0)
+    assert machine.get_coin_05().get_qty() == 0
+
+def test_should_get_coin_10():
+    owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+    machine = MachineAggregate.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0)
+    assert machine.get_coin_10().get_qty() == 0
+
+def test_should_get_coin_25():
+    owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+    machine = MachineAggregate.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0)
+    assert machine.get_coin_25().get_qty() == 0
+
+def test_should_get_coin_50():
+    owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+    machine = MachineAggregate.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0)
+    assert machine.get_coin_50().get_qty() == 0
+
+def test_should_get_coin_100():
+    owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+    machine = MachineAggregate.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0)
+    assert machine.get_coin_100().get_qty() == 0
