@@ -26,5 +26,6 @@ class EmailValueObject:
         instance.__init__(email)
         return instance
     
-    def get_value() -> str:
-        return EmailValueObject.__value
+    @classmethod
+    def get_value(cls) -> str:
+        return cls.__value
