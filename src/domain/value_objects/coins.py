@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Self
 
-from src.domain.exceptions.invalid_coins_qty import InvalidCoinsQty
+from src.domain.exceptions.invalid_coins_qty import InvalidCoinsQtyException
 
 class CoinTypes(Enum):
     COIN_01 = 1
@@ -25,7 +25,7 @@ class CoinsValueObject:
     @staticmethod
     def __validate(qty: int) -> None:
         if qty < 0:
-            raise InvalidCoinsQty()
+            raise InvalidCoinsQtyException()
     
     @classmethod
     def create(cls, value: CoinTypes, qty: int) -> Self:
@@ -47,5 +47,5 @@ class CoinsValueObject:
     
     def reduce_qty(self) -> None:
         if CoinsValueObject.__qty <= 0:
-            raise InvalidCoinsQty()
+            raise InvalidCoinsQtyException()
         CoinsValueObject.__qty -= 1

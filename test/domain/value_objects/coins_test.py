@@ -1,7 +1,7 @@
 import pytest
 
 from src.domain.value_objects.coins import CoinsValueObject, CoinTypes
-from src.domain.exceptions.invalid_coins_qty import InvalidCoinsQty
+from src.domain.exceptions.invalid_coins_qty import InvalidCoinsQtyException
 
 def test_should_raise_exception_by_using_constructor():
     with pytest.raises(Exception, match="Use the 'create' method to create an instance of this class."):
@@ -9,7 +9,7 @@ def test_should_raise_exception_by_using_constructor():
 
 def test_should_raise_exception_if_coin_quantity_is_negative():
     qty = -1
-    with pytest.raises(InvalidCoinsQty, match="quantity of coins can not be negative"):
+    with pytest.raises(InvalidCoinsQtyException, match="quantity of coins can not be negative"):
         CoinsValueObject.create(CoinTypes.COIN_01, qty)
 
 def test_should_get_value():
@@ -31,6 +31,6 @@ def test_should_reduce_qty():
     assert sut.get_qty() == 0
 
 def test_raise_exception_when_coin_quantity_is_0():
-    with pytest.raises(InvalidCoinsQty, match="quantity of coins can not be negative"):
+    with pytest.raises(InvalidCoinsQtyException, match="quantity of coins can not be negative"):
         sut = CoinsValueObject.create(CoinTypes.COIN_01, 0)
         sut.reduce_qty()
