@@ -3,6 +3,8 @@ from typing import Self
 
 from src.domain.entities.owner import OwnerEntity
 
+from src.domain.value_objects.uuid import UUIDValueObject
+
 class MachineState(Enum):
     READY = 'READY'
     DISPENSING = 'DISPENSING'
@@ -12,7 +14,7 @@ class MachineAggregate:
         raise Exception("Use the 'create' method to create an instance of this class.")
 
     def __init__(self, id: str, owner: OwnerEntity, state: MachineState, coin_01_qty: int, coin_05_qty: int, coin_10_qty: int, coin_25_qty: int, coin_50_qty: int, coin_100_qty: int):
-        self.__id = id
+        self.__id: UUIDValueObject = UUIDValueObject.create(id)
         self.__owner = owner
         self.__state = state
         self.__coin_01_qty = coin_01_qty
@@ -29,7 +31,7 @@ class MachineAggregate:
         return instance
     
     def get_id(self) -> str:
-        return self.__id
+        return self.__id.get_value()
 
     def get_state(self) -> MachineState:
         return self.__state
