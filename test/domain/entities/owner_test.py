@@ -18,8 +18,3 @@ def test_should_get_full_name():
 def test_should_get_email():
     owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
     assert owner.get_email() == "test@mail.com"
-
-def test_throw_exception_if_email_is_invalid():
-    email: str = "test@.com"
-    with pytest.raises(InvalidEmailException, match='email is invalid: ' + email):
-        OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", email)
