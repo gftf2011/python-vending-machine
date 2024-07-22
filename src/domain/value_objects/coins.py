@@ -12,15 +12,12 @@ class CoinTypes(Enum):
     COIN_100 = 100
 
 class CoinsValueObject:
-    __value: CoinTypes
-    __qty: int
-
     def __new__(cls, *args, **kwargs):
         raise Exception("Use the 'create' method to create an instance of this class.")
 
     def __init__(self, value: CoinTypes, qty: int):
-        CoinsValueObject.__value = value
-        CoinsValueObject.__qty = qty
+        self.__value = value
+        self.__qty = qty
 
     @staticmethod
     def __validate(qty: int) -> None:
@@ -33,19 +30,17 @@ class CoinsValueObject:
         instance = super().__new__(cls)
         instance.__init__(value, qty)
         return instance
-    
-    @classmethod
-    def get_value(cls) -> CoinTypes:
-        return cls.__value
 
-    @classmethod
-    def get_qty(cls) -> int:
-        return cls.__qty
+    def get_value(self) -> CoinTypes:
+        return self.__value
+
+    def get_qty(self) -> int:
+        return self.__qty
     
     def increase_qty(self) -> None:
-        CoinsValueObject.__qty += 1
+        self.__qty += 1
     
     def reduce_qty(self) -> None:
-        if CoinsValueObject.__qty <= 0:
+        if self.__qty <= 0:
             raise InvalidCoinsQtyException()
-        CoinsValueObject.__qty -= 1
+        self.__qty -= 1
