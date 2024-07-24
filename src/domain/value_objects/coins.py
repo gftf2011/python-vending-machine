@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import IntEnum
 from typing import Self
 
 from src.domain.exceptions.invalid_coins_qty import InvalidCoinsQtyException
 
-class CoinTypes(Enum):
+class CoinTypes(IntEnum):
     COIN_01 = 1
     COIN_05 = 5
     COIN_10 = 10
