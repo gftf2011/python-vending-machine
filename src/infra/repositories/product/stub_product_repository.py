@@ -1,24 +1,24 @@
 from abc import ABC, abstractmethod
 
-from src.domain.repositories.machine import IMachineRepository
+from src.domain.repositories.product import IProductRepository
 
-class IFindByIdResponseObject(ABC):
+class IFindByCodeResponseObject(ABC):
     @abstractmethod
-    def execute(self, id):
+    def execute(self, code, machine_id):
         pass
 
-class FindByIdResponseWithSuccessObject(IFindByIdResponseObject):
+class FindByCodeResponseWithSuccessObject(IFindByCodeResponseObject):
     def __init__(self, response):
         self.__response = response
 
-    def execute(self, id):
+    def execute(self, code, machine_id):
         return self.__response
 
-class FindByIdResponseWithFailureObject(IFindByIdResponseObject):
+class FindByCodeResponseWithFailureObject(IFindByCodeResponseObject):
     def __init__(self, exception: Exception):
         self.__response = exception
 
-    def execute(self, id):
+    def execute(self, code, machine_id):
         raise self.__response
 
 class IUpdateResponseObject(ABC):
@@ -37,17 +37,17 @@ class UpdateResponseWithFailureObject(IUpdateResponseObject):
     def execute(self, entity):
         raise self.__response
 
-class StubMachineRepository(IMachineRepository):
-    def __init__(self, find_by_id_response_list: list[IFindByIdResponseObject], update_response_list: list[IUpdateResponseObject]):
-        self.__find_by_id_response_list = find_by_id_response_list
+class StubProductRepository(IProductRepository):
+    def __init__(self, find_by_code_response_list: list[IFindByCodeResponseObject], update_response_list: list[IUpdateResponseObject]):
+        self.__find_by_code_response_list = find_by_code_response_list
         self.__update_response_list = update_response_list
-        self.__find_by_id_counter = 0
+        self.__find_by_code_counter = 0
         self.__update_counter = 0
 
-    async def find_by_id(self, id):
-        aux_counter = self.__find_by_id_counter
-        self.__find_by_id_counter += 1
-        response = self.__find_by_id_response_list[aux_counter].execute(id)
+    async def find_by_code(self, code, machine_id):
+        aux_counter = self.__find_by_code_counter
+        self.__find_by_code_counter += 1
+        response = self.__find_by_code_response_list[aux_counter].execute(code, machine_id)
         return response
 
     async def update(self, entity):
