@@ -6,7 +6,6 @@ from src.domain.entities.product import ProductEntity
 from src.domain.value_objects.uuid import UUIDValueObject
 
 from src.domain.repositories.machine import IMachineRepository
-from src.domain.repositories.product import IProductRepository
 
 from src.domain.contracts.services.machine import ChooseProductInputDTO, ChooseProductOutputDTO, IMachineService
 
