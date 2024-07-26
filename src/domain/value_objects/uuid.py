@@ -6,7 +6,7 @@ from src.domain.exceptions.invalid_uuid import InvalidUUIDException
 
 class UUIDValueObject:
     def __new__(cls, *args, **kwargs):
-        raise Exception("Use the 'create' method to create an instance of this class.")
+        raise Exception("Use the 'create' OR 'create_new' methods to create an instance of this class.")
 
     def __init__(self, value: str):
         self.__value = value
@@ -24,6 +24,12 @@ class UUIDValueObject:
         UUIDValueObject.__validate(id)
         instance = super().__new__(cls)
         instance.__init__(id)
+        return instance
+
+    @classmethod
+    def create_new(cls) -> Self:
+        instance = super().__new__(cls)
+        instance.__init__(str(uuid.uuid4()))
         return instance
 
     def get_value(self) -> str:
