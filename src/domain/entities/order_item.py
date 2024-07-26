@@ -17,18 +17,18 @@ class OrderItemEntity:
         self.__created_at: datetime = created_at
 
     @classmethod
-    def create(cls, id: str, qty: int, product: ProductEntity, created_at: datetime) -> Self:
+    def create(cls, id: str, product: ProductEntity, created_at: datetime) -> Self:
         instance = super().__new__(cls)
         price: int = product.get_unit_price()
-        qty: int = qty
+        qty: int = product.get_qty()
         instance.__init__(id, product, price, qty, created_at)
         return instance
 
     @classmethod
-    def create_new(cls, id: str, qty: int, product: ProductEntity) -> Self:
+    def create_new(cls, id: str, product: ProductEntity) -> Self:
         instance = super().__new__(cls)
         price: int = product.get_unit_price()
-        qty: int = qty
+        qty: int = product.get_qty()
         created_at: datetime = datetime.now()
         instance.__init__(id, product, price, qty, created_at)
         return instance
