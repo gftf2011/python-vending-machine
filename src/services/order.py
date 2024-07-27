@@ -3,7 +3,7 @@ from typing import Optional
 from src.domain.entities.machine import MachineEntity
 from src.domain.entities.product import ProductEntity
 from src.domain.entities.order_item import OrderItemEntity
-from src.domain.entities.order import OrderEntity 
+from src.domain.entities.order import OrderEntity
 
 from src.domain.value_objects.uuid import UUIDValueObject
 
