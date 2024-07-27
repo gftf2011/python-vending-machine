@@ -5,7 +5,7 @@ from src.domain.value_objects.uuid import UUIDValueObject
 
 from src.domain.entities.product import ProductEntity
 
-from src.domain.exceptions.invalid_products_qty import InvalidProductsQtyException
+from src.domain.exceptions.invalid_order_item_product_qty import InvalidOrderItemProductQtyException
 
 class OrderItemEntity:
     def __new__(cls, *args, **kwargs):
@@ -25,7 +25,7 @@ class OrderItemEntity:
         qty: int = product.get_qty()
 
         if qty <= 0:
-            raise InvalidProductsQtyException()
+            raise InvalidOrderItemProductQtyException()
 
         instance.__init__(id, product, price, qty, created_at)
         return instance
@@ -37,7 +37,7 @@ class OrderItemEntity:
         qty: int = product.get_qty()
 
         if qty <= 0:
-            raise InvalidProductsQtyException()
+            raise InvalidOrderItemProductQtyException()
 
         created_at: datetime = datetime.now()
         instance.__init__(id, product, price, qty, created_at)
