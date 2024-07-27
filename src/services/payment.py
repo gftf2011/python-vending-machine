@@ -27,8 +27,10 @@ class PaymentService(IPaymentService):
 
         payment: PaymentEntity = None
 
+        payment_id: str = UUIDValueObject.create_new().get_value()
+
         if input.payment_type == PaymentType.CASH:
-            payment = CashPaymentEntity.create(UUIDValueObject.create_new().get_value(), input.order_id, order_found.get_total_amount(), input.amount_paid)
+            payment = CashPaymentEntity.create(payment_id, input.order_id, order_found.get_total_amount(), input.amount_paid)
 
         if payment == None:
             raise InvalidPaymentTypeException(str(input.payment_type))
@@ -37,4 +39,4 @@ class PaymentService(IPaymentService):
 
         await self.__payment_repo.save(payment)
 
-        return PayForProductOutputDTO(change)
+        return PayForProductOutputDTO(payment_id, change)

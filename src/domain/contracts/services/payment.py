@@ -9,8 +9,9 @@ class PayForProductInputDTO:
         self.payment_type = payment_type
 
 class PayForProductOutputDTO:
-    def __init__(self, change: int):
+    def __init__(self, payment_id: str, change: int):
         self.change = change
+        self.payment_id = payment_id
 
 class IPaymentService(ABC):
     @abstractmethod
