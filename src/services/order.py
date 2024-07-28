@@ -46,4 +46,4 @@ class OrderService(IOrderService):
 
         await self.__order_repo.save(order)
 
-        return CreateOrderOutputDTO(order.get_id().value)
+        return CreateOrderOutputDTO(order.id.value)

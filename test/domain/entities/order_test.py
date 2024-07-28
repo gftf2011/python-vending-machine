@@ -24,13 +24,13 @@ def test_should_create():
     for order_item in order_items:
         total_amount += order_item.price
 
-    assert sut.get_id().value == "f3331752-6c11-4578-adb7-331d703cb446"
-    assert sut.get_created_at().timestamp() == datetime(1970, 1, 1).timestamp()
-    assert sut.get_updated_at().timestamp() == datetime(1970, 1, 1).timestamp()
-    assert sut.get_machine_id().value == machine_id
-    assert sut.get_order_items()[0].id.value == "f3331752-6c11-4578-adb7-331d703cb445"
-    assert sut.get_order_status() == OrderStatus.PENDING
-    assert sut.get_total_amount() == total_amount
+    assert sut.id.value == "f3331752-6c11-4578-adb7-331d703cb446"
+    assert sut.created_at.timestamp() == datetime(1970, 1, 1).timestamp()
+    assert sut.updated_at.timestamp() == datetime(1970, 1, 1).timestamp()
+    assert sut.machine_id.value == machine_id
+    assert sut.order_items[0].id.value == "f3331752-6c11-4578-adb7-331d703cb445"
+    assert sut.order_status == OrderStatus.PENDING
+    assert sut.total_amount == total_amount
 
 def test_should_create_new():
     machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
@@ -44,13 +44,13 @@ def test_should_create_new():
 
     timestamp = datetime.now().timestamp()
 
-    assert sut.get_id().value == "f3331752-6c11-4578-adb7-331d703cb446"
-    assert sut.get_created_at().timestamp() < timestamp
-    assert sut.get_updated_at().timestamp() < timestamp
-    assert sut.get_machine_id().value == machine_id
-    assert sut.get_order_items()[0].id.value == "f3331752-6c11-4578-adb7-331d703cb445"
-    assert sut.get_order_status() == OrderStatus.PENDING
-    assert sut.get_total_amount() == total_amount
+    assert sut.id.value == "f3331752-6c11-4578-adb7-331d703cb446"
+    assert sut.created_at.timestamp() < timestamp
+    assert sut.updated_at.timestamp() < timestamp
+    assert sut.machine_id.value == machine_id
+    assert sut.order_items[0].id.value == "f3331752-6c11-4578-adb7-331d703cb445"
+    assert sut.order_status == OrderStatus.PENDING
+    assert sut.total_amount == total_amount
 
 def test_should_raise_exception_when_try_to_cancel_order_when_order_is_delivered():
     machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
@@ -74,7 +74,7 @@ def test_should_deliver_order():
     order_items = [OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", product, datetime(1970, 1, 1))]
     sut = OrderEntity.create("f3331752-6c11-4578-adb7-331d703cb446", machine_id, order_items, OrderStatus.PENDING, datetime(1970, 1, 1), datetime(1970, 1, 1))
     sut.deliver_order()
-    assert sut.get_order_status() == OrderStatus.DELIVERED
+    assert sut.order_status == OrderStatus.DELIVERED
 
 def test_should_cancel_order():
     machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
@@ -82,4 +82,4 @@ def test_should_cancel_order():
     order_items = [OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", product, datetime(1970, 1, 1))]
     sut = OrderEntity.create("f3331752-6c11-4578-adb7-331d703cb446", machine_id, order_items, OrderStatus.PENDING, datetime(1970, 1, 1), datetime(1970, 1, 1))
     sut.cancel_order()
-    assert sut.get_order_status() == OrderStatus.CANCELED
+    assert sut.order_status == OrderStatus.CANCELED

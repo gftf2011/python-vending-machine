@@ -18,13 +18,13 @@ class OrderEntity:
         raise Exception("Use the 'create' OR 'create_new' methods to create an instance of this class.")
 
     def __init__(self, id: str, machine_id: str, order_items: list[OrderItemEntity], total_amount: int, order_status: OrderStatus, created_at: datetime, updated_at: datetime):
-        self.__id: UUIDValueObject = UUIDValueObject.create(id)
-        self.__machine_id: UUIDValueObject = UUIDValueObject.create(machine_id)
-        self.__order_items: list[OrderItemEntity] = order_items
-        self.__total_amount: int = total_amount
-        self.__order_status: OrderStatus = order_status
-        self.__created_at: datetime = created_at
-        self.__updated_at: datetime = updated_at
+        self._id: UUIDValueObject = UUIDValueObject.create(id)
+        self._machine_id: UUIDValueObject = UUIDValueObject.create(machine_id)
+        self._order_items: list[OrderItemEntity] = order_items
+        self._total_amount: int = total_amount
+        self._order_status: OrderStatus = order_status
+        self._created_at: datetime = created_at
+        self._updated_at: datetime = updated_at
 
     @classmethod
     def create(cls, id: str, machine_id: str, order_items: list[OrderItemEntity], order_status: OrderStatus, created_at: datetime, updated_at: datetime) -> Self:
@@ -48,35 +48,42 @@ class OrderEntity:
         instance.__init__(id, machine_id, order_items, total_amount, order_status, created_at, updated_at)
         return instance
 
-    def get_id(self) -> UUIDValueObject:
-        return self.__id
+    @property
+    def id(self) -> UUIDValueObject:
+        return self._id
 
-    def get_machine_id(self) -> UUIDValueObject:
-        return self.__machine_id
+    @property
+    def machine_id(self) -> UUIDValueObject:
+        return self._machine_id
 
-    def get_order_items(self) -> list[OrderItemEntity]:
-        return self.__order_items
+    @property
+    def order_items(self) -> list[OrderItemEntity]:
+        return self._order_items
 
-    def get_order_status(self) -> OrderStatus:
-        return self.__order_status
+    @property
+    def order_status(self) -> OrderStatus:
+        return self._order_status
 
-    def get_created_at(self) -> datetime:
-        return self.__created_at
+    @property
+    def created_at(self) -> datetime:
+        return self._created_at
 
-    def get_updated_at(self) -> datetime:
-        return self.__updated_at
+    @property
+    def updated_at(self) -> datetime:
+        return self._updated_at
 
-    def get_total_amount(self) -> int:
-        return self.__total_amount
+    @property
+    def total_amount(self) -> int:
+        return self._total_amount
 
     def deliver_order(self) -> None:
-        if self.__order_status == OrderStatus.CANCELED:
-            raise InvalidOrderStatusChangeException(self.__id.value)
-        self.__order_status = OrderStatus.DELIVERED
-        self.__updated_at = datetime.now()
+        if self._order_status == OrderStatus.CANCELED:
+            raise InvalidOrderStatusChangeException(self._id.value)
+        self._order_status = OrderStatus.DELIVERED
+        self._updated_at = datetime.now()
 
     def cancel_order(self) -> None:
-        if self.__order_status == OrderStatus.DELIVERED:
-            raise InvalidOrderStatusChangeException(self.__id.value)
-        self.__order_status = OrderStatus.CANCELED
-        self.__updated_at = datetime.now()
+        if self._order_status == OrderStatus.DELIVERED:
+            raise InvalidOrderStatusChangeException(self._id.value)
+        self._order_status = OrderStatus.CANCELED
+        self._updated_at = datetime.now()
