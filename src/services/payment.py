@@ -35,7 +35,7 @@ class PaymentService(IPaymentService):
         if payment == None:
             raise InvalidPaymentTypeException(str(input.payment_type))
 
-        change: int = payment.get_change()
+        change: int = payment.change
 
         await self.__payment_repo.save(payment)
 
