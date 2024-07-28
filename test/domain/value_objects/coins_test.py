@@ -14,21 +14,21 @@ def test_should_raise_exception_if_coin_quantity_is_negative():
 
 def test_should_get_value():
     sut = CoinsValueObject.create(CoinTypes.COIN_05, 0)
-    assert sut.get_value() == CoinTypes.COIN_05
+    assert sut.value == CoinTypes.COIN_05
 
 def test_should_get_qty():
     sut = CoinsValueObject.create(CoinTypes.COIN_01, 0)
-    assert sut.get_qty() == 0
+    assert sut.qty == 0
 
 def test_should_increase_qty():
     sut = CoinsValueObject.create(CoinTypes.COIN_01, 0)
     sut.increase_qty()
-    assert sut.get_qty() == 1
+    assert sut.qty == 1
 
 def test_should_reduce_qty():
     sut = CoinsValueObject.create(CoinTypes.COIN_01, 1)
     sut.reduce_qty()
-    assert sut.get_qty() == 0
+    assert sut.qty == 0
 
 def test_raise_exception_when_coin_quantity_is_0():
     with pytest.raises(InvalidCoinsQtyException, match="quantity of coins can not be negative"):

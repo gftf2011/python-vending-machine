@@ -37,32 +37,32 @@ def test_should_finish_dispense_product():
 def test_should_get_coin_01():
     owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
     machine = MachineEntity.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0, [])
-    assert machine.get_coin_01().get_qty() == 0
+    assert machine.get_coin_01().qty == 0
 
 def test_should_get_coin_05():
     owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
     machine = MachineEntity.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0, [])
-    assert machine.get_coin_05().get_qty() == 0
+    assert machine.get_coin_05().qty == 0
 
 def test_should_get_coin_10():
     owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
     machine = MachineEntity.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0, [])
-    assert machine.get_coin_10().get_qty() == 0
+    assert machine.get_coin_10().qty == 0
 
 def test_should_get_coin_25():
     owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
     machine = MachineEntity.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0, [])
-    assert machine.get_coin_25().get_qty() == 0
+    assert machine.get_coin_25().qty == 0
 
 def test_should_get_coin_50():
     owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
     machine = MachineEntity.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0, [])
-    assert machine.get_coin_50().get_qty() == 0
+    assert machine.get_coin_50().qty == 0
 
 def test_should_get_coin_100():
     owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
     machine = MachineEntity.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0, [])
-    assert machine.get_coin_100().get_qty() == 0
+    assert machine.get_coin_100().qty == 0
 
 def test_should_get_products():
     products = [ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 0, "00", 0)]
@@ -89,12 +89,12 @@ def test_should_add_coins():
     
     machine.add_coins(1, 1, 1, 1, 1, 1)
     
-    assert machine.get_coin_01().get_qty() == 1
-    assert machine.get_coin_05().get_qty() == 1
-    assert machine.get_coin_10().get_qty() == 1
-    assert machine.get_coin_25().get_qty() == 1
-    assert machine.get_coin_50().get_qty() == 1
-    assert machine.get_coin_100().get_qty() == 1
+    assert machine.get_coin_01().qty == 1
+    assert machine.get_coin_05().qty == 1
+    assert machine.get_coin_10().qty == 1
+    assert machine.get_coin_25().qty == 1
+    assert machine.get_coin_50().qty == 1
+    assert machine.get_coin_100().qty == 1
 
 def test_should_subtract_coins():
     products = []
@@ -103,12 +103,12 @@ def test_should_subtract_coins():
     
     machine.subtract_coins(1, 1, 1, 1, 1, 1)
     
-    assert machine.get_coin_01().get_qty() == 0
-    assert machine.get_coin_05().get_qty() == 0
-    assert machine.get_coin_10().get_qty() == 0
-    assert machine.get_coin_25().get_qty() == 0
-    assert machine.get_coin_50().get_qty() == 0
-    assert machine.get_coin_100().get_qty() == 0
+    assert machine.get_coin_01().qty == 0
+    assert machine.get_coin_05().qty == 0
+    assert machine.get_coin_10().qty == 0
+    assert machine.get_coin_25().qty == 0
+    assert machine.get_coin_50().qty == 0
+    assert machine.get_coin_100().qty == 0
 
 def test_should_raise_exception_when_there_is_enough_coins_to_subtract():
     with pytest.raises(InvalidCoinsQtyException, match="quantity of coins can not be negative"):

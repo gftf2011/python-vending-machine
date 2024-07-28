@@ -112,39 +112,39 @@ class MachineEntity:
 
     def get_coins_from_change(self, change: int) -> CoinsChange:
         coin_100: int = 0
-        while self.__coin_100.get_qty() > 0 and self.__coin_100.get_value() <= change:
+        while self.__coin_100.qty > 0 and self.__coin_100.value <= change:
             self.__coin_100.reduce_qty()
-            change -= self.__coin_100.get_value()
+            change -= self.__coin_100.value
             coin_100 += 1
 
         coin_50: int = 0
-        while self.__coin_50.get_qty() > 0 and self.__coin_50.get_value() <= change:
+        while self.__coin_50.qty > 0 and self.__coin_50.value <= change:
             self.__coin_50.reduce_qty()
-            change -= self.__coin_50.get_value()
+            change -= self.__coin_50.value
             coin_50 += 1
 
         coin_25: int = 0
-        while self.__coin_25.get_qty() > 0 and self.__coin_25.get_value() <= change:
+        while self.__coin_25.qty > 0 and self.__coin_25.value <= change:
             self.__coin_25.reduce_qty()
-            change -= self.__coin_25.get_value()
+            change -= self.__coin_25.value
             coin_25 += 1
 
         coin_10: int = 0
-        while self.__coin_10.get_qty() > 0 and self.__coin_10.get_value() <= change:
+        while self.__coin_10.qty > 0 and self.__coin_10.value <= change:
             self.__coin_10.reduce_qty()
-            change -= self.__coin_10.get_value()
+            change -= self.__coin_10.value
             coin_10 += 1
         
         coin_05: int = 0
-        while self.__coin_05.get_qty() > 0 and self.__coin_05.get_value() <= change:
+        while self.__coin_05.qty > 0 and self.__coin_05.value <= change:
             self.__coin_05.reduce_qty()
-            change -= self.__coin_05.get_value()
+            change -= self.__coin_05.value
             coin_05 += 1
 
         coin_01: int = 0
-        while self.__coin_01.get_qty() > 0 and self.__coin_01.get_value() <= change:
+        while self.__coin_01.qty > 0 and self.__coin_01.value <= change:
             self.__coin_01.reduce_qty()
-            change -= self.__coin_01.get_value()
+            change -= self.__coin_01.value
             coin_01 += 1
 
         if change != 0:
