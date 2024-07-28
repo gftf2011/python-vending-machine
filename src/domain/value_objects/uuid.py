@@ -9,10 +9,10 @@ class UUIDValueObject:
         raise Exception("Use the 'create' OR 'create_new' methods to create an instance of this class.")
 
     def __init__(self, value: str):
-        self.__value = value
+        self._value = value
     
     @staticmethod
-    def __validate(id: str) -> None:
+    def _validate(id: str) -> None:
         try:
             uuid.UUID(id, version=4)
             return True
@@ -21,7 +21,7 @@ class UUIDValueObject:
     
     @classmethod
     def create(cls, id: str) -> Self:
-        UUIDValueObject.__validate(id)
+        UUIDValueObject._validate(id)
         instance = super().__new__(cls)
         instance.__init__(id)
         return instance
@@ -32,5 +32,6 @@ class UUIDValueObject:
         instance.__init__(str(uuid.uuid4()))
         return instance
 
-    def get_value(self) -> str:
-        return self.__value
+    @property
+    def value(self) -> str:
+        return self._value

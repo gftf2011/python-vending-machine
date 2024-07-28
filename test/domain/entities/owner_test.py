@@ -9,7 +9,7 @@ def test_should_raise_exception_by_using_constructor():
 
 def test_should_get_id():
     owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
-    assert owner.get_id().get_value() == "b9651752-6c44-4578-bdb6-883d703cbff5"
+    assert owner.get_id().value == "b9651752-6c44-4578-bdb6-883d703cbff5"
 
 def test_should_get_full_name():
     owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")

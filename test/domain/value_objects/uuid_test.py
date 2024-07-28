@@ -15,8 +15,8 @@ def test_should_raise_exception_if_id_is_invalid():
 def test_should_create():
     id: str = "b9651752-6c44-4578-bdb6-883d703cbff5"
     sut = UUIDValueObject.create(id)
-    assert sut.get_value() == id
+    assert sut.value == id
 
 def test_should_create_new():
     sut = UUIDValueObject.create_new()
-    assert sut.get_value() != None
+    assert sut.value != None

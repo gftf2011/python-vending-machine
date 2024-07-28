@@ -39,7 +39,7 @@ class Test_Payment_Service_Pay_For_Product:
             order_repo = StubOrderRepository([FindByIdResponseWithSuccessObject(order)], [], [])
             payment_repo = DummyPaymentRepository()
             service = PaymentService(order_repo, payment_repo)
-            input = PayForProductInputDTO(order.get_id().get_value(), 0, PaymentType.CASH)
+            input = PayForProductInputDTO(order.get_id().value, 0, PaymentType.CASH)
             await service.pay_for_product(input)
 
     @pytest.mark.asyncio
@@ -52,7 +52,7 @@ class Test_Payment_Service_Pay_For_Product:
             order_repo = StubOrderRepository([FindByIdResponseWithSuccessObject(order)], [], [])
             payment_repo = DummyPaymentRepository()
             service = PaymentService(order_repo, payment_repo)
-            input = PayForProductInputDTO(order.get_id().get_value(), 1, "UNKNOWN")
+            input = PayForProductInputDTO(order.get_id().value, 1, "UNKNOWN")
             await service.pay_for_product(input)
 
     @pytest.mark.asyncio
@@ -66,7 +66,7 @@ class Test_Payment_Service_Pay_For_Product:
         payment_repo = StubPaymentRepository([SaveResponseWithSuccessObject()])
         service = PaymentService(order_repo, payment_repo)
 
-        input = PayForProductInputDTO(order.get_id().get_value(), 1, PaymentType.CASH)
+        input = PayForProductInputDTO(order.get_id().value, 1, PaymentType.CASH)
 
         output = await service.pay_for_product(input)
 

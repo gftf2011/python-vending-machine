@@ -37,6 +37,6 @@ class MachineService(IMachineService):
         if not product_found:
             raise ProductDoesNotExistException()
         if product_found.get_qty() == 0:
-            raise UnavailableProductException(product_found.get_id().get_value())
+            raise UnavailableProductException(product_found.get_id().value)
 
-        return ChooseProductOutputDTO(product_found.get_id().get_value(), product_found.get_unit_price(), product_found.get_name())
+        return ChooseProductOutputDTO(product_found.get_id().value, product_found.get_unit_price(), product_found.get_name())

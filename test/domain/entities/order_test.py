@@ -24,11 +24,11 @@ def test_should_create():
     for order_item in order_items:
         total_amount += order_item.get_price()
 
-    assert sut.get_id().get_value() == "f3331752-6c11-4578-adb7-331d703cb446"
+    assert sut.get_id().value == "f3331752-6c11-4578-adb7-331d703cb446"
     assert sut.get_created_at().timestamp() == datetime(1970, 1, 1).timestamp()
     assert sut.get_updated_at().timestamp() == datetime(1970, 1, 1).timestamp()
-    assert sut.get_machine_id().get_value() == machine_id
-    assert sut.get_order_items()[0].get_id().get_value() == "f3331752-6c11-4578-adb7-331d703cb445"
+    assert sut.get_machine_id().value == machine_id
+    assert sut.get_order_items()[0].get_id().value == "f3331752-6c11-4578-adb7-331d703cb445"
     assert sut.get_order_status() == OrderStatus.PENDING
     assert sut.get_total_amount() == total_amount
 
@@ -44,11 +44,11 @@ def test_should_create_new():
 
     timestamp = datetime.now().timestamp()
 
-    assert sut.get_id().get_value() == "f3331752-6c11-4578-adb7-331d703cb446"
+    assert sut.get_id().value == "f3331752-6c11-4578-adb7-331d703cb446"
     assert sut.get_created_at().timestamp() < timestamp
     assert sut.get_updated_at().timestamp() < timestamp
-    assert sut.get_machine_id().get_value() == machine_id
-    assert sut.get_order_items()[0].get_id().get_value() == "f3331752-6c11-4578-adb7-331d703cb445"
+    assert sut.get_machine_id().value == machine_id
+    assert sut.get_order_items()[0].get_id().value == "f3331752-6c11-4578-adb7-331d703cb445"
     assert sut.get_order_status() == OrderStatus.PENDING
     assert sut.get_total_amount() == total_amount
 

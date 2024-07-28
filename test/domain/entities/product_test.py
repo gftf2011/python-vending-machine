@@ -20,7 +20,7 @@ def test_should_raise_exception_if_unit_price_is_negative():
 
 def test_should_get_id():
     sut = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 0, "00", 0)
-    assert sut.get_id().get_value() == "b9651752-6c44-4578-bdb6-883d703cbff5"
+    assert sut.get_id().value == "b9651752-6c44-4578-bdb6-883d703cbff5"
 
 def test_should_get_code():
     sut = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 0, "00", 0)

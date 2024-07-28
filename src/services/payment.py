@@ -23,11 +23,11 @@ class PaymentService(IPaymentService):
             raise OrderDoesNotExistException(input.order_id)
 
         if order_found.get_total_amount() > input.amount_paid:
-            raise NotEnoughForPaymentException(input.amount_paid, order_found.get_id().get_value())
+            raise NotEnoughForPaymentException(input.amount_paid, order_found.get_id().value)
 
         payment: PaymentEntity = None
 
-        payment_id: str = UUIDValueObject.create_new().get_value()
+        payment_id: str = UUIDValueObject.create_new().value
 
         if input.payment_type == PaymentType.CASH:
             payment = CashPaymentEntity.create(payment_id, input.order_id, order_found.get_total_amount(), input.amount_paid)

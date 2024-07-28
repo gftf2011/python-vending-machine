@@ -71,12 +71,12 @@ class OrderEntity:
 
     def deliver_order(self) -> None:
         if self.__order_status == OrderStatus.CANCELED:
-            raise InvalidOrderStatusChangeException(self.__id.get_value())
+            raise InvalidOrderStatusChangeException(self.__id.value)
         self.__order_status = OrderStatus.DELIVERED
         self.__updated_at = datetime.now()
 
     def cancel_order(self) -> None:
         if self.__order_status == OrderStatus.DELIVERED:
-            raise InvalidOrderStatusChangeException(self.__id.get_value())
+            raise InvalidOrderStatusChangeException(self.__id.value)
         self.__order_status = OrderStatus.CANCELED
         self.__updated_at = datetime.now()
