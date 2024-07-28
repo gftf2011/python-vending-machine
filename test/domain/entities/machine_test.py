@@ -80,7 +80,7 @@ def test_should_get_owner():
     machine = MachineEntity.create("a8351752-ec32-4578-bdb6-883d703cbee7", owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
     assert machine.get_owner().get_id().get_value() == "b9651752-6c44-4578-bdb6-883d703cbff5"
     assert machine.get_owner().get_full_name() == "Sebastião Maia"
-    assert machine.get_owner().get_email().get_value() == "test@mail.com"
+    assert machine.get_owner().get_email().value == "test@mail.com"
 
 def test_should_add_coins():
     products = []

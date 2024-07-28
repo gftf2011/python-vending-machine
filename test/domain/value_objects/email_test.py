@@ -15,4 +15,4 @@ def test_should_raise_exception_if_email_is_invalid():
 def test_should_get_value():
     email: str = "test@mail.com"
     sut = EmailValueObject.create(email)
-    assert sut.get_value() == email
+    assert sut.value == email
