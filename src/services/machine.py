@@ -20,7 +20,7 @@ class MachineService(IMachineService):
 
     def __find_product(self, product_code: str, products: list[ProductEntity]) -> Optional[ProductEntity]:
         for product in products:
-            if product_code == product.get_code():
+            if product_code == product.code:
                 return product
         return None
 
@@ -36,7 +36,7 @@ class MachineService(IMachineService):
 
         if not product_found:
             raise ProductDoesNotExistException()
-        if product_found.get_qty() == 0:
-            raise UnavailableProductException(product_found.get_id().value)
+        if product_found.qty == 0:
+            raise UnavailableProductException(product_found.id.value)
 
-        return ChooseProductOutputDTO(product_found.get_id().value, product_found.get_unit_price(), product_found.get_name())
+        return ChooseProductOutputDTO(product_found.id.value, product_found.unit_price, product_found.name)

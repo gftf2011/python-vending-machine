@@ -23,7 +23,7 @@ class OrderService(IOrderService):
 
     def __find_product(self, product_id: str, products: list[ProductEntity]) -> Optional[ProductEntity]:
         for product in products:
-            if product_id == product.get_id().value:
+            if product_id == product.id.value:
                 return product
         return None
 
@@ -37,10 +37,10 @@ class OrderService(IOrderService):
 
         if not product_found:
             raise ProductDoesNotExistException()
-        if product_found.get_qty() < input.product_qty:
-            raise UnavailableProductException(product_found.get_id().value)
+        if product_found.qty < input.product_qty:
+            raise UnavailableProductException(product_found.id.value)
 
-        product_order: ProductEntity = ProductEntity.create(product_found.get_id().value, product_found.get_name(), input.product_qty, product_found.get_code(), product_found.get_unit_price())
+        product_order: ProductEntity = ProductEntity.create(product_found.id.value, product_found.name, input.product_qty, product_found.code, product_found.unit_price)
         order_item: OrderItemEntity = OrderItemEntity.create_new(UUIDValueObject.create_new().value, product_order)
         order: OrderEntity = OrderEntity.create_new(UUIDValueObject.create_new().value, input.machine_id, [order_item])
 

@@ -21,8 +21,8 @@ class OrderItemEntity:
     @classmethod
     def create(cls, id: str, product: ProductEntity, created_at: datetime) -> Self:
         instance = super().__new__(cls)
-        price: int = product.get_unit_price()
-        qty: int = product.get_qty()
+        price: int = product.unit_price
+        qty: int = product.qty
 
         if qty <= 0:
             raise InvalidOrderItemProductQtyException()
@@ -33,8 +33,8 @@ class OrderItemEntity:
     @classmethod
     def create_new(cls, id: str, product: ProductEntity) -> Self:
         instance = super().__new__(cls)
-        price: int = product.get_unit_price()
-        qty: int = product.get_qty()
+        price: int = product.unit_price
+        qty: int = product.qty
 
         if qty <= 0:
             raise InvalidOrderItemProductQtyException()
