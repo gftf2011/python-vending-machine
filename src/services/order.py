@@ -32,7 +32,7 @@ class OrderService(IOrderService):
         if not machine_found:
             raise UnregistredMachineException(input.machine_id)
 
-        products: list[ProductEntity] = machine_found.get_products()
+        products: list[ProductEntity] = machine_found.products
         product_found: ProductEntity = self.__find_product(input.product_id, products)
 
         if not product_found:

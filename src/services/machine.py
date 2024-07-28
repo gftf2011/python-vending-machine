@@ -28,10 +28,10 @@ class MachineService(IMachineService):
         machine_found: MachineEntity = await self.__machine_repo.find_by_id(UUIDValueObject.create(input.machine_id))
         if not machine_found:
             raise UnregistredMachineException(input.machine_id)
-        if machine_found.get_state() != MachineState.READY:
+        if machine_found.state != MachineState.READY:
             raise MachineIsNotReadyException()
         
-        products: list[ProductEntity] = machine_found.get_products()
+        products: list[ProductEntity] = machine_found.products
         product_found: ProductEntity = self.__find_product(input.product_code, products)
 
         if not product_found:
