@@ -31,7 +31,7 @@ class OrderEntity:
         instance = super().__new__(cls)
         total_amount: int = 0
         for order_item in order_items:
-            total_amount += order_item.get_price()
+            total_amount += order_item.price
         instance.__init__(id, machine_id, order_items, total_amount, order_status, created_at, updated_at)
         return instance
 
@@ -44,7 +44,7 @@ class OrderEntity:
         order_status: OrderStatus = OrderStatus.PENDING
         total_amount: int = 0
         for order_item in order_items:
-            total_amount += order_item.get_price()
+            total_amount += order_item.price
         instance.__init__(id, machine_id, order_items, total_amount, order_status, created_at, updated_at)
         return instance
 

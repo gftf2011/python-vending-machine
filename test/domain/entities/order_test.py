@@ -12,7 +12,7 @@ def test_should_raise_exception_by_using_constructor():
     with pytest.raises(Exception, match="Use the 'create' OR 'create_new' methods to create an instance of this class."):
         product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0)
         order_item = OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", product, datetime(1970, 1, 1))
-        OrderEntity("f3331752-6c11-4578-adb7-331d703cb446", machine_id, [order_item], order_item.get_price(), OrderStatus.PENDING, datetime(1970, 1, 1),datetime(1970, 1, 1))
+        OrderEntity("f3331752-6c11-4578-adb7-331d703cb446", machine_id, [order_item], order_item.price, OrderStatus.PENDING, datetime(1970, 1, 1),datetime(1970, 1, 1))
 
 def test_should_create():
     machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
@@ -22,13 +22,13 @@ def test_should_create():
 
     total_amount: int = 0
     for order_item in order_items:
-        total_amount += order_item.get_price()
+        total_amount += order_item.price
 
     assert sut.get_id().value == "f3331752-6c11-4578-adb7-331d703cb446"
     assert sut.get_created_at().timestamp() == datetime(1970, 1, 1).timestamp()
     assert sut.get_updated_at().timestamp() == datetime(1970, 1, 1).timestamp()
     assert sut.get_machine_id().value == machine_id
-    assert sut.get_order_items()[0].get_id().value == "f3331752-6c11-4578-adb7-331d703cb445"
+    assert sut.get_order_items()[0].id.value == "f3331752-6c11-4578-adb7-331d703cb445"
     assert sut.get_order_status() == OrderStatus.PENDING
     assert sut.get_total_amount() == total_amount
 
@@ -40,7 +40,7 @@ def test_should_create_new():
 
     total_amount: int = 0
     for order_item in order_items:
-        total_amount += order_item.get_price()
+        total_amount += order_item.price
 
     timestamp = datetime.now().timestamp()
 
@@ -48,7 +48,7 @@ def test_should_create_new():
     assert sut.get_created_at().timestamp() < timestamp
     assert sut.get_updated_at().timestamp() < timestamp
     assert sut.get_machine_id().value == machine_id
-    assert sut.get_order_items()[0].get_id().value == "f3331752-6c11-4578-adb7-331d703cb445"
+    assert sut.get_order_items()[0].id.value == "f3331752-6c11-4578-adb7-331d703cb445"
     assert sut.get_order_status() == OrderStatus.PENDING
     assert sut.get_total_amount() == total_amount
 

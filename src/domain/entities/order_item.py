@@ -12,11 +12,11 @@ class OrderItemEntity:
         raise Exception("Use the 'create' OR 'create_new' methods to create an instance of this class.")
 
     def __init__(self, id: str, product: ProductEntity, price: int, qty: int, created_at: datetime):
-        self.__id: UUIDValueObject = UUIDValueObject.create(id)
-        self.__product: ProductEntity = product
-        self.__price: int = price
-        self.__qty: int = qty
-        self.__created_at: datetime = created_at
+        self._id: UUIDValueObject = UUIDValueObject.create(id)
+        self._product: ProductEntity = product
+        self._price: int = price
+        self._qty: int = qty
+        self._created_at: datetime = created_at
 
     @classmethod
     def create(cls, id: str, product: ProductEntity, created_at: datetime) -> Self:
@@ -42,18 +42,23 @@ class OrderItemEntity:
         created_at: datetime = datetime.now()
         instance.__init__(id, product, price, qty, created_at)
         return instance
-    
-    def get_id(self) -> UUIDValueObject:
-        return self.__id
 
-    def get_product(self) -> ProductEntity:
-        return self.__product
-    
-    def get_price(self) -> int:
-        return self.__price
+    @property
+    def id(self) -> UUIDValueObject:
+        return self._id
 
-    def get_qty(self) -> int:
-        return self.__qty
+    @property
+    def product(self) -> ProductEntity:
+        return self._product
 
-    def get_created_at(self) -> datetime:
-        return self.__created_at
+    @property
+    def price(self) -> int:
+        return self._price
+
+    @property
+    def qty(self) -> int:
+        return self._qty
+
+    @property
+    def created_at(self) -> datetime:
+        return self._created_at
