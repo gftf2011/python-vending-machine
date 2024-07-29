@@ -12,7 +12,7 @@ from src.domain.repositories.order import IOrderRepository
 
 from src.domain.contracts.services.order import CreateOrderInputDTO, CreateOrderOutputDTO, IOrderService
 
-from src.services.exceptions.unregistered_machine import UnregistredMachineException
+from src.services.exceptions.unregistered_machine import UnregisteredMachineException
 from src.services.exceptions.product_does_not_exist import ProductDoesNotExistException
 from src.services.exceptions.unavailable_product import UnavailableProductException
 
@@ -30,7 +30,7 @@ class OrderService(IOrderService):
     async def create(self, input: CreateOrderInputDTO) -> CreateOrderOutputDTO:
         machine_found: MachineEntity = await self.__machine_repo.find_by_id(UUIDValueObject.create(input.machine_id))
         if not machine_found:
-            raise UnregistredMachineException(input.machine_id)
+            raise UnregisteredMachineException(input.machine_id)
 
         products: list[ProductEntity] = machine_found.products
         product_found: ProductEntity = self.__find_product(input.product_id, products)

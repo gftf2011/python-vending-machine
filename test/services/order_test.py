@@ -4,7 +4,7 @@ from src.domain.contracts.services.order import CreateOrderInputDTO
 
 from src.services.order import OrderService
 
-from src.services.exceptions.unregistered_machine import UnregistredMachineException
+from src.services.exceptions.unregistered_machine import UnregisteredMachineException
 from src.services.exceptions.product_does_not_exist import ProductDoesNotExistException
 from src.services.exceptions.unavailable_product import UnavailableProductException
 
@@ -21,7 +21,7 @@ class Test_Order_Service_Create:
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         product_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
         product_qty: int = 0
-        with pytest.raises(UnregistredMachineException):
+        with pytest.raises(UnregisteredMachineException):
             machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(None)], [])
             order_repo = DummyOrderRepository()
             service = OrderService(machine_repo, order_repo)

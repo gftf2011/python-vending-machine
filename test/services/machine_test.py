@@ -3,21 +3,22 @@ import pytest
 from src.domain.entities.product import ProductEntity
 from src.domain.entities.owner import OwnerEntity
 from src.domain.entities.machine import MachineEntity, MachineState
-from src.domain.contracts.services.machine import ChooseProductInputDTO
+from src.domain.contracts.services.machine import ChooseProductInputDTO, AddCoinsInputDTO
 
 from src.services.machine import MachineService
-from src.services.exceptions.unregistered_machine import UnregistredMachineException
+from src.services.exceptions.unregistered_machine import UnregisteredMachineException
 from src.services.exceptions.machine_is_not_ready import MachineIsNotReadyException
 from src.services.exceptions.product_does_not_exist import ProductDoesNotExistException
 from src.services.exceptions.unavailable_product import UnavailableProductException
+from src.services.exceptions.incorrect_negative_change import IncorrectNegativeChangeException
 
-from src.infra.repositories.machine.stub_machine_repository import FindByIdResponseWithSuccessObject, StubMachineRepository
+from src.infra.repositories.machine.stub_machine_repository import FindByIdResponseWithSuccessObject, StubMachineRepository, UpdateResponseWithSuccessObject
 
 class Test_Machine_Service_Choose_Product:
     @pytest.mark.asyncio
     async def test_should_raise_exception_if_machine_is_not_registered(self):
         id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
-        with pytest.raises(UnregistredMachineException):
+        with pytest.raises(UnregisteredMachineException):
             machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(None)], [])
             service = MachineService(machine_repo)
             input = ChooseProductInputDTO("00", id)
@@ -80,3 +81,93 @@ class Test_Machine_Service_Choose_Product:
         assert output.product_id == "a9651193-6c44-4568-bdb6-883d703cbee5"
         assert output.product_name == "Hersheys"
         assert output.product_price == 0
+
+class Test_Machine_Service_Add_Coins:
+    @pytest.mark.asyncio
+    async def test_should_raise_exception_if_machine_is_not_registered(self):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        with pytest.raises(UnregisteredMachineException):
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(None)], [])
+            service = MachineService(machine_repo)
+            input = AddCoinsInputDTO(machine_id, 0, 0, 0, 0, 0, 0, 0)
+            await service.add_coins(input)
+
+    @pytest.mark.asyncio
+    async def test_should_raise_exception_if_machine_is_not_ready(self):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        with pytest.raises(MachineIsNotReadyException):
+            products = []
+            owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+            machine = MachineEntity.create(machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products)
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [])
+            service = MachineService(machine_repo)
+            input = AddCoinsInputDTO(machine_id, 0, 0, 0, 0, 0, 0, 0)
+            await service.add_coins(input)
+
+    @pytest.mark.asyncio
+    async def test_should_raise_exception_if_change_is_negative(self):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        with pytest.raises(IncorrectNegativeChangeException):
+            products = []
+            owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+            machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [])
+            service = MachineService(machine_repo)
+            input = AddCoinsInputDTO(machine_id, -1, 0, 0, 0, 0, 0, 0)
+            await service.add_coins(input)
+
+    @pytest.mark.asyncio
+    async def test_should_return_no_change_when_change_is_0(self):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+
+        products = []
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+        machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 1, products)
+
+        machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [UpdateResponseWithSuccessObject()])
+        service = MachineService(machine_repo)
+
+        input = AddCoinsInputDTO(machine_id, 0, 1, 0, 0, 0, 0, 0)
+        output = await service.add_coins(input)
+
+        assert output.coin_01_qty == 0
+        assert output.coin_05_qty == 0
+        assert output.coin_10_qty == 0
+        assert output.coin_25_qty == 0
+        assert output.coin_50_qty == 0
+        assert output.coin_100_qty == 0
+
+        assert machine.coin_01.qty == 1
+        assert machine.coin_05.qty == 0
+        assert machine.coin_10.qty == 0
+        assert machine.coin_25.qty == 0
+        assert machine.coin_50.qty == 0
+        assert machine.coin_100.qty == 1
+
+    @pytest.mark.asyncio
+    async def test_should_return_change(self):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+
+        products = []
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+        machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
+
+        machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [UpdateResponseWithSuccessObject()])
+        service = MachineService(machine_repo)
+
+        input = AddCoinsInputDTO(machine_id, 100, 1, 0, 0, 2, 1, 0)
+        output = await service.add_coins(input)
+
+        assert output.coin_01_qty == 0
+        assert output.coin_05_qty == 0
+        assert output.coin_10_qty == 0
+        assert output.coin_25_qty == 2
+        assert output.coin_50_qty == 1
+        assert output.coin_100_qty == 0
+
+        assert machine.coin_01.qty == 1
+        assert machine.coin_05.qty == 0
+        assert machine.coin_10.qty == 0
+        assert machine.coin_25.qty == 0
+        assert machine.coin_50.qty == 0
+        assert machine.coin_100.qty == 0
