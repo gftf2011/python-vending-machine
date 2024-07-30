@@ -8,6 +8,7 @@ from src.domain.entities.product import ProductEntity
 from src.domain.exceptions.invalid_order_status_change import InvalidOrderStatusChangeException
 
 def test_should_raise_exception_by_using_constructor():
+    """Function to test if the software component will raise an exception if calls the constructor"""
     machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
     with pytest.raises(Exception, match="Use the 'create' OR 'create_new' methods to create an instance of this class."):
         product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0)
@@ -15,6 +16,7 @@ def test_should_raise_exception_by_using_constructor():
         OrderEntity("f3331752-6c11-4578-adb7-331d703cb446", machine_id, [order_item], order_item.price, OrderStatus.PENDING, datetime(1970, 1, 1),datetime(1970, 1, 1))
 
 def test_should_create():
+    """Function to test if AN EXISTING order is created with right parameters"""
     machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
     product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0)
     order_items = [OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", product, datetime(1970, 1, 1))]
@@ -33,6 +35,7 @@ def test_should_create():
     assert sut.total_amount == total_amount
 
 def test_should_create_new():
+    """Function to test if A NON-EXISTING order is created with right parameters"""
     machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
     product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0)
     order_items = [OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", product, datetime(1970, 1, 1))]
@@ -53,6 +56,7 @@ def test_should_create_new():
     assert sut.total_amount == total_amount
 
 def test_should_raise_exception_when_try_to_cancel_order_when_order_is_delivered():
+    """Function to test if order will raise exception if when try to cancel an order that is already delivered"""
     machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
     product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0)
     order_items = [OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", product, datetime(1970, 1, 1))]
@@ -61,6 +65,7 @@ def test_should_raise_exception_when_try_to_cancel_order_when_order_is_delivered
         sut.cancel_order()
 
 def test_should_raise_exception_when_try_to_deliver_order_when_order_is_canceled():
+    """Function to test if order will raise exception if when try to deliver an order that is already canceled"""
     machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
     product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0)
     order_items = [OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", product, datetime(1970, 1, 1))]
@@ -69,6 +74,7 @@ def test_should_raise_exception_when_try_to_deliver_order_when_order_is_canceled
         sut.deliver_order()
 
 def test_should_deliver_order():
+    """Function to test if deliver_order function will change order to DELIVERED"""
     machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
     product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0)
     order_items = [OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", product, datetime(1970, 1, 1))]
@@ -77,6 +83,7 @@ def test_should_deliver_order():
     assert sut.order_status == OrderStatus.DELIVERED
 
 def test_should_cancel_order():
+    """Function to test if cancel_order function will change order to CANCELED"""
     machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
     product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0)
     order_items = [OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", product, datetime(1970, 1, 1))]

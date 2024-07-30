@@ -1,12 +1,15 @@
-import pytest
 from datetime import datetime
+
+import pytest
 
 from src.domain.entities.payment import CashPaymentEntity, PaymentEntity, PaymentType
 
 from src.domain.exceptions.not_enough_cash_tendered import NotEnoughCashTenderedException
 
 class Test_Payment_Entity:
+    """Test class to test the cash entity"""
     def test_should_create_sut(self):
+        """Function to test if the software component will create default payment"""
         payment_id: str = "b9651752-6c44-4578-bdb6-883d703cbff5"
         order_id: str = "b9651752-6c44-4578-bdb6-883d703cbff6"
         payment_type: PaymentType = PaymentType.CASH
@@ -20,7 +23,9 @@ class Test_Payment_Entity:
         assert sut.amount == amount 
 
 class Test_Cash_Payment_Entity:
+    """Test class to test the cash payment entity"""
     def test_should_raise_exception_by_using_constructor(self):
+        """Function to test if the software component will raise an exception if calls the constructor"""
         payment_id: str = "b9651752-6c44-4578-bdb6-883d703cbff5"
         order_id: str = "b9651752-6c44-4578-bdb6-883d703cbff6"
         payment_type: PaymentType = PaymentType.CASH
@@ -31,6 +36,7 @@ class Test_Cash_Payment_Entity:
             CashPaymentEntity(payment_id, order_id, payment_type, amount, payment_date, cash_tendered)
 
     def test_should_raise_exception_if_cash_tendered_is_not_enough(self):
+        """Function to test if the software component will raise if there is not enough cash"""
         payment_id: str = "b9651752-6c44-4578-bdb6-883d703cbff5"
         order_id: str = "b9651752-6c44-4578-bdb6-883d703cbff6"
         amount: int = 1
@@ -39,6 +45,7 @@ class Test_Cash_Payment_Entity:
             CashPaymentEntity.create(payment_id, order_id, amount, cash_tendered)
 
     def test_should_create_sut(self):
+        """Function to test if the software component will create cash payment"""
         payment_id: str = "b9651752-6c44-4578-bdb6-883d703cbff5"
         order_id: str = "b9651752-6c44-4578-bdb6-883d703cbff6"
         amount: int = 1

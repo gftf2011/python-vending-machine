@@ -1,6 +1,10 @@
 {
   "python.linting.pylintEnabled": true,
   "python.linting.enabled": true,
+  "python.linting.pylintArgs": ["--rcfile=.pylintrc"],
+
+  "python.testing.pytestEnabled": true,
+
   "files.exclude": {
     "**/*pyc": { "when": "$(basename).py" },
     "**/__pycache__": true,
