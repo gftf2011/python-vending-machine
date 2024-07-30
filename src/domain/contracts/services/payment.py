@@ -15,5 +15,5 @@ class PayForProductOutputDTO:
 
 class IPaymentService(ABC):
     @abstractmethod
-    async def pay_for_product(self, input: PayForProductInputDTO) -> PayForProductOutputDTO:
+    async def pay_for_product(self, input_dto: PayForProductInputDTO) -> PayForProductOutputDTO:
         raise NotImplementedError

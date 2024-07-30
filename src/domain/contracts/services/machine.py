@@ -34,9 +34,9 @@ class AddCoinsOutputDTO:
 
 class IMachineService(ABC):
     @abstractmethod
-    async def choose_product(self, input: ChooseProductInputDTO) -> ChooseProductOutputDTO:
+    async def choose_product(self, input_dto: ChooseProductInputDTO) -> ChooseProductOutputDTO:
         raise NotImplementedError
 
     @abstractmethod
-    async def add_coins(self, input: AddCoinsInputDTO) -> AddCoinsOutputDTO:
+    async def add_coins(self, input_dto: AddCoinsInputDTO) -> AddCoinsOutputDTO:
         raise NotImplementedError

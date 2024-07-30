@@ -12,5 +12,5 @@ class CreateOrderOutputDTO:
 
 class IOrderService(ABC):
     @abstractmethod
-    async def create(self, input: CreateOrderInputDTO) -> CreateOrderOutputDTO:
+    async def create(self, input_dto: CreateOrderInputDTO) -> CreateOrderOutputDTO:
         raise NotImplementedError
