@@ -32,6 +32,10 @@ class AddCoinsOutputDTO:
         self.coin_50_qty = coin_50_qty
         self.coin_100_qty = coin_100_qty
 
+class AllowDispenseInputDTO:
+    def __init__(self, machine_id: str):
+        self.machine_id = machine_id
+
 class IMachineService(ABC):
     @abstractmethod
     async def choose_product(self, input_dto: ChooseProductInputDTO) -> ChooseProductOutputDTO:
@@ -41,4 +45,9 @@ class IMachineService(ABC):
     @abstractmethod
     async def add_coins(self, input_dto: AddCoinsInputDTO) -> AddCoinsOutputDTO:
         """Function used to update the number of coins the machine after the product payment"""
+        raise NotImplementedError
+
+    @abstractmethod
+    async def allow_dispense(self, input_dto: AllowDispenseInputDTO) -> None:
+        """Function used to update machine state to dispense a product"""
         raise NotImplementedError
