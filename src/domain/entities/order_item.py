@@ -5,13 +5,25 @@ from src.domain.value_objects.uuid import UUIDValueObject
 
 from src.domain.entities.product import ProductEntity
 
-from src.domain.exceptions.invalid_order_item_product_qty import InvalidOrderItemProductQtyException
+from src.domain.exceptions.invalid_order_item_product_qty import (
+    InvalidOrderItemProductQtyException,
+)
+
 
 class OrderItemEntity:
     def __new__(cls, *args, **kwargs):
-        raise Exception("Use the 'create' OR 'create_new' methods to create an instance of this class.")
+        raise Exception(
+            "Use the 'create' OR 'create_new' methods to create an instance of this class."
+        )
 
-    def __init__(self, id: str, product: ProductEntity, price: int, qty: int, created_at: datetime):
+    def __init__(
+        self,
+        id: str,
+        product: ProductEntity,
+        price: int,
+        qty: int,
+        created_at: datetime,
+    ):
         self._id: UUIDValueObject = UUIDValueObject.create(id)
         self._product: ProductEntity = product
         self._price: int = price

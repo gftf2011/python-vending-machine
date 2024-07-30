@@ -3,4 +3,4 @@ max-line-length=180
 ignored-modules=pytest
 
 [MESSAGES CONTROL]
-disable=C0114,C0103,C0115
+disable=C0114,C0103,C0115,C2801,W0622,C0116

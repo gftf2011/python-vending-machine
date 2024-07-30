@@ -3,6 +3,7 @@ from typing import Self
 from src.domain.value_objects.uuid import UUIDValueObject
 from src.domain.value_objects.email import EmailValueObject
 
+
 class OwnerEntity:
     def __new__(cls, *args, **kwargs):
         raise Exception("Use the 'create' method to create an instance of this class.")

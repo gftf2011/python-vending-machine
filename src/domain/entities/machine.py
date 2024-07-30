@@ -9,40 +9,97 @@ from src.domain.value_objects.coins import CoinsValueObject, CoinTypes
 
 from src.domain.exceptions.no_change_available import NoChangeAvailableException
 
+
 class CoinsChange:
-    def __init__(self, coin_01_qty: int, coin_05_qty: int, coin_10_qty: int, coin_25_qty: int, coin_50_qty: int, coin_100_qty: int):
+    def __init__(
+        self,
+        coin_01_qty: int,
+        coin_05_qty: int,
+        coin_10_qty: int,
+        coin_25_qty: int,
+        coin_50_qty: int,
+        coin_100_qty: int,
+    ):
         self.coin_01_qty: int = coin_01_qty
         self.coin_05_qty: int = coin_05_qty
         self.coin_10_qty: int = coin_10_qty
         self.coin_25_qty: int = coin_25_qty
         self.coin_50_qty: int = coin_50_qty
         self.coin_100_qty: int = coin_100_qty
-        
+
 
 class MachineState(Enum):
-    READY = 'READY'
-    DISPENSING = 'DISPENSING'
+    READY = "READY"
+    DISPENSING = "DISPENSING"
+
 
 class MachineEntity:
     def __new__(cls, *args, **kwargs):
         raise Exception("Use the 'create' method to create an instance of this class.")
 
-    def __init__(self, id: str, owner: OwnerEntity, state: MachineState, coin_01_qty: int, coin_05_qty: int, coin_10_qty: int, coin_25_qty: int, coin_50_qty: int, coin_100_qty: int, products: list[ProductEntity]):
+    def __init__(
+        self,
+        id: str,
+        owner: OwnerEntity,
+        state: MachineState,
+        coin_01_qty: int,
+        coin_05_qty: int,
+        coin_10_qty: int,
+        coin_25_qty: int,
+        coin_50_qty: int,
+        coin_100_qty: int,
+        products: list[ProductEntity],
+    ):
         self._id: UUIDValueObject = UUIDValueObject.create(id)
         self._owner: OwnerEntity = owner
         self._state = state
-        self._coin_01: CoinsValueObject = CoinsValueObject.create(CoinTypes.COIN_01, coin_01_qty)
-        self._coin_05: CoinsValueObject = CoinsValueObject.create(CoinTypes.COIN_05, coin_05_qty)
-        self._coin_10: CoinsValueObject = CoinsValueObject.create(CoinTypes.COIN_10, coin_10_qty)
-        self._coin_25: CoinsValueObject = CoinsValueObject.create(CoinTypes.COIN_25, coin_25_qty)
-        self._coin_50: CoinsValueObject = CoinsValueObject.create(CoinTypes.COIN_50, coin_50_qty)
-        self._coin_100: CoinsValueObject = CoinsValueObject.create(CoinTypes.COIN_100, coin_100_qty)
+        self._coin_01: CoinsValueObject = CoinsValueObject.create(
+            CoinTypes.COIN_01, coin_01_qty
+        )
+        self._coin_05: CoinsValueObject = CoinsValueObject.create(
+            CoinTypes.COIN_05, coin_05_qty
+        )
+        self._coin_10: CoinsValueObject = CoinsValueObject.create(
+            CoinTypes.COIN_10, coin_10_qty
+        )
+        self._coin_25: CoinsValueObject = CoinsValueObject.create(
+            CoinTypes.COIN_25, coin_25_qty
+        )
+        self._coin_50: CoinsValueObject = CoinsValueObject.create(
+            CoinTypes.COIN_50, coin_50_qty
+        )
+        self._coin_100: CoinsValueObject = CoinsValueObject.create(
+            CoinTypes.COIN_100, coin_100_qty
+        )
         self._products: list[ProductEntity] = products
-    
+
     @classmethod
-    def create(cls, id: str, owner: OwnerEntity, state: MachineState, coin_01_qty: int, coin_05_qty: int, coin_10_qty: int, coin_25_qty: int, coin_50_qty: int, coin_100_qty: int, products: list[ProductEntity]) -> Self:
+    def create(
+        cls,
+        id: str,
+        owner: OwnerEntity,
+        state: MachineState,
+        coin_01_qty: int,
+        coin_05_qty: int,
+        coin_10_qty: int,
+        coin_25_qty: int,
+        coin_50_qty: int,
+        coin_100_qty: int,
+        products: list[ProductEntity],
+    ) -> Self:
         instance = super().__new__(cls)
-        instance.__init__(id, owner, state, coin_01_qty, coin_05_qty, coin_10_qty, coin_25_qty, coin_50_qty, coin_100_qty, products)
+        instance.__init__(
+            id,
+            owner,
+            state,
+            coin_01_qty,
+            coin_05_qty,
+            coin_10_qty,
+            coin_25_qty,
+            coin_50_qty,
+            coin_100_qty,
+            products,
+        )
         return instance
 
     @property
@@ -87,11 +144,19 @@ class MachineEntity:
 
     def finish_dispense_product(self) -> None:
         self._state = MachineState.READY
-    
+
     def start_dispense_product(self) -> None:
         self._state = MachineState.DISPENSING
 
-    def get_amount_out_of_coins(self, coin_01_qty: int, coin_05_qty: int, coin_10_qty: int, coin_25_qty: int, coin_50_qty: int, coin_100_qty: int) -> int:
+    def get_amount_out_of_coins(
+        self,
+        coin_01_qty: int,
+        coin_05_qty: int,
+        coin_10_qty: int,
+        coin_25_qty: int,
+        coin_50_qty: int,
+        coin_100_qty: int,
+    ) -> int:
         amount: int = 0
 
         while coin_01_qty > 0:
@@ -144,7 +209,7 @@ class MachineEntity:
             self._coin_10.reduce_qty()
             change -= self._coin_10.value
             coin_10 += 1
-        
+
         coin_05: int = 0
         while self._coin_05.qty > 0 and self._coin_05.value <= change:
             self._coin_05.reduce_qty()
@@ -162,7 +227,15 @@ class MachineEntity:
 
         return CoinsChange(coin_01, coin_05, coin_10, coin_25, coin_50, coin_100)
 
-    def add_coins(self, coin_01_qty: int, coin_05_qty: int, coin_10_qty: int, coin_25_qty: int, coin_50_qty: int, coin_100_qty: int) -> None:
+    def add_coins(
+        self,
+        coin_01_qty: int,
+        coin_05_qty: int,
+        coin_10_qty: int,
+        coin_25_qty: int,
+        coin_50_qty: int,
+        coin_100_qty: int,
+    ) -> None:
         while coin_01_qty > 0:
             self._coin_01.increase_qty()
             coin_01_qty -= 1
@@ -187,7 +260,15 @@ class MachineEntity:
             self._coin_100.increase_qty()
             coin_100_qty -= 1
 
-    def subtract_coins(self, coin_01_qty: int, coin_05_qty: int, coin_10_qty: int, coin_25_qty: int, coin_50_qty: int, coin_100_qty: int) -> None:
+    def subtract_coins(
+        self,
+        coin_01_qty: int,
+        coin_05_qty: int,
+        coin_10_qty: int,
+        coin_25_qty: int,
+        coin_50_qty: int,
+        coin_100_qty: int,
+    ) -> None:
         while coin_01_qty > 0:
             self._coin_01.reduce_qty()
             coin_01_qty -= 1
