@@ -2,10 +2,12 @@ from abc import ABC, abstractmethod
 
 from src.domain.repositories.machine import IMachineRepository
 
+
 class IFindByIdResponseObject(ABC):
     @abstractmethod
     def execute(self, id):
         pass
+
 
 class FindByIdResponseWithSuccessObject(IFindByIdResponseObject):
     def __init__(self, response):
@@ -14,6 +16,7 @@ class FindByIdResponseWithSuccessObject(IFindByIdResponseObject):
     def execute(self, id):
         return self.__response
 
+
 class FindByIdResponseWithFailureObject(IFindByIdResponseObject):
     def __init__(self, exception: Exception):
         self.__response = exception
@@ -21,14 +24,17 @@ class FindByIdResponseWithFailureObject(IFindByIdResponseObject):
     def execute(self, id):
         raise self.__response
 
+
 class IUpdateResponseObject(ABC):
     @abstractmethod
     def execute(self, entity):
         pass
 
+
 class UpdateResponseWithSuccessObject(IUpdateResponseObject):
     def execute(self, entity):
         return None
+
 
 class UpdateResponseWithFailureObject(IUpdateResponseObject):
     def __init__(self, exception: Exception):
@@ -37,8 +43,13 @@ class UpdateResponseWithFailureObject(IUpdateResponseObject):
     def execute(self, entity):
         raise self.__response
 
+
 class StubMachineRepository(IMachineRepository):
-    def __init__(self, find_by_id_response_list: list[IFindByIdResponseObject], update_response_list: list[IUpdateResponseObject]):
+    def __init__(
+        self,
+        find_by_id_response_list: list[IFindByIdResponseObject],
+        update_response_list: list[IUpdateResponseObject],
+    ):
         self.__find_by_id_response_list = find_by_id_response_list
         self.__update_response_list = update_response_list
         self.__find_by_id_counter = 0

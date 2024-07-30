@@ -1,5 +1,6 @@
 from src.domain.repositories.order import IOrderRepository
 
+
 class DummyOrderRepository(IOrderRepository):
     async def find_by_id(self, id):
         pass

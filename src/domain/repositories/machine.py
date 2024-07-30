@@ -5,6 +5,7 @@ from src.domain.value_objects.uuid import UUIDValueObject
 
 from src.domain.entities.machine import MachineEntity
 
+
 class IMachineRepository(ABC):
     @abstractmethod
     async def find_by_id(self, id: UUIDValueObject) -> Optional[MachineEntity]:

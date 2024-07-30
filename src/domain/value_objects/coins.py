@@ -3,6 +3,7 @@ from typing import Self
 
 from src.domain.exceptions.invalid_coins_qty import InvalidCoinsQtyException
 
+
 class CoinTypes(IntEnum):
     COIN_01 = 1
     COIN_05 = 5
@@ -10,6 +11,7 @@ class CoinTypes(IntEnum):
     COIN_25 = 25
     COIN_50 = 50
     COIN_100 = 100
+
 
 class CoinsValueObject:
     def __new__(cls, *args, **kwargs):
@@ -23,7 +25,7 @@ class CoinsValueObject:
     def _validate(qty: int) -> None:
         if qty < 0:
             raise InvalidCoinsQtyException()
-    
+
     @classmethod
     def create(cls, value: CoinTypes, qty: int) -> Self:
         CoinsValueObject._validate(qty)
@@ -38,10 +40,10 @@ class CoinsValueObject:
     @property
     def qty(self) -> int:
         return self._qty
-    
+
     def increase_qty(self) -> None:
         self._qty += 1
-    
+
     def reduce_qty(self) -> None:
         if self._qty <= 0:
             raise InvalidCoinsQtyException()

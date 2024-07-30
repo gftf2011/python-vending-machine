@@ -4,13 +4,16 @@ from typing import Self
 
 from src.domain.exceptions.invalid_uuid import InvalidUUIDException
 
+
 class UUIDValueObject:
     def __new__(cls, *args, **kwargs):
-        raise Exception("Use the 'create' OR 'create_new' methods to create an instance of this class.")
+        raise Exception(
+            "Use the 'create' OR 'create_new' methods to create an instance of this class."
+        )
 
     def __init__(self, value: str):
         self._value = value
-    
+
     @staticmethod
     def _validate(id: str) -> None:
         try:
@@ -18,7 +21,7 @@ class UUIDValueObject:
             return True
         except ValueError:
             raise InvalidUUIDException(id)
-    
+
     @classmethod
     def create(cls, id: str) -> Self:
         UUIDValueObject._validate(id)
