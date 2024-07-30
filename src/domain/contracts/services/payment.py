@@ -16,4 +16,5 @@ class PayForProductOutputDTO:
 class IPaymentService(ABC):
     @abstractmethod
     async def pay_for_product(self, input_dto: PayForProductInputDTO) -> PayForProductOutputDTO:
+        """Function used to create the payment for chosen product"""
         raise NotImplementedError
