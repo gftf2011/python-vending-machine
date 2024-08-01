@@ -292,3 +292,12 @@ class MachineEntity:
         while coin_100_qty > 0:
             self._coin_100.reduce_qty()
             coin_100_qty -= 1
+
+    def deliver_product(self, product_id: UUIDValueObject) -> None:
+        product_found: ProductEntity = None
+
+        for product in self._products:
+            if product_id == product.id:
+                product_found = product
+
+        product_found.reduce_qty()

@@ -59,6 +59,19 @@ class AllowDispenseInputDTO:
         self.machine_id = machine_id
 
 
+class DeliverProductInputDTO:
+    def __init__(self, machine_id: str, product_id: str, product_qty: int):
+        self.machine_id = machine_id
+        self.product_id = product_id
+        self.product_qty = product_qty
+
+
+class DeliverProductOutputDTO:
+    def __init__(self, product_id: str, product_code: str):
+        self.product_id = product_id
+        self.product_code = product_code
+
+
 class IMachineService(ABC):
     @abstractmethod
     async def choose_product(
@@ -75,4 +88,11 @@ class IMachineService(ABC):
     @abstractmethod
     async def allow_dispense(self, input_dto: AllowDispenseInputDTO) -> None:
         """Function used to update machine state to dispense a product"""
+        raise NotImplementedError
+
+    @abstractmethod
+    async def deliver_product(
+        self, input_dto: DeliverProductInputDTO
+    ) -> DeliverProductOutputDTO:
+        """Function used to deliver machine product quantity after payment"""
         raise NotImplementedError

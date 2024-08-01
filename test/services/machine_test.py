@@ -7,6 +7,7 @@ from src.domain.contracts.services.machine import (
     ChooseProductInputDTO,
     AddCoinsInputDTO,
     AllowDispenseInputDTO,
+    DeliverProductInputDTO,
 )
 
 from src.services.machine import MachineService
@@ -16,6 +17,9 @@ from src.services.exceptions.product_does_not_exist import ProductDoesNotExistEx
 from src.services.exceptions.unavailable_product import UnavailableProductException
 from src.services.exceptions.incorrect_negative_change import (
     IncorrectNegativeChangeException,
+)
+from src.services.exceptions.machine_is_not_dispensing import (
+    MachineIsNotDispensingException,
 )
 
 from src.infra.repositories.machine.stub_machine_repository import (
@@ -291,3 +295,117 @@ class Test_Machine_Service_Allow_Dispense:
         await service.allow_dispense(input_dto)
 
         assert machine.state == MachineState.DISPENSING
+
+
+class Test_Machine_Service_Deliver_Product:
+    @pytest.mark.asyncio
+    async def test_should_raise_exception_if_machine_is_not_registered(self):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        product_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
+        product_qty: int = 1
+        with pytest.raises(UnregisteredMachineException):
+            machine_repo = StubMachineRepository(
+                [FindByIdResponseWithSuccessObject(None)], []
+            )
+            service = MachineService(machine_repo)
+            input_dto = DeliverProductInputDTO(machine_id, product_id, product_qty)
+            await service.deliver_product(input_dto)
+
+    @pytest.mark.asyncio
+    async def test_should_raise_exception_if_machine_is_not_dispensing(self):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        product_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
+        with pytest.raises(MachineIsNotDispensingException):
+            products = [ProductEntity.create(product_id, "Hersheys", 0, "00", 0)]
+            owner = OwnerEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cbff5",
+                "Sebastião Maia",
+                "test@mail.com",
+            )
+            machine = MachineEntity.create(
+                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
+            )
+
+            machine_repo = StubMachineRepository(
+                [FindByIdResponseWithSuccessObject(machine)], []
+            )
+            service = MachineService(machine_repo)
+            input_dto = DeliverProductInputDTO(machine_id, product_id, 0)
+            await service.deliver_product(input_dto)
+
+    @pytest.mark.asyncio
+    async def test_should_raise_exception_if_product_does_not_exist_in_machine(self):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        product_id_1: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
+        product_id_2: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4d"
+        with pytest.raises(ProductDoesNotExistException):
+            products = [ProductEntity.create(product_id_1, "Hersheys", 0, "00", 0)]
+            owner = OwnerEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cbff5",
+                "Sebastião Maia",
+                "test@mail.com",
+            )
+            machine = MachineEntity.create(
+                machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products
+            )
+
+            machine_repo = StubMachineRepository(
+                [FindByIdResponseWithSuccessObject(machine)], []
+            )
+            service = MachineService(machine_repo)
+            input_dto = DeliverProductInputDTO(machine_id, product_id_2, 0)
+            await service.deliver_product(input_dto)
+
+    @pytest.mark.asyncio
+    async def test_should_raise_exception_if_there_is_no_available_product_inside_the_machine(
+        self,
+    ):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        product_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
+        with pytest.raises(UnavailableProductException):
+            products = [ProductEntity.create(product_id, "Hersheys", 0, "00", 0)]
+            owner = OwnerEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cbff5",
+                "Sebastião Maia",
+                "test@mail.com",
+            )
+            machine = MachineEntity.create(
+                machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products
+            )
+
+            machine_repo = StubMachineRepository(
+                [FindByIdResponseWithSuccessObject(machine)], []
+            )
+            service = MachineService(machine_repo)
+            input_dto = DeliverProductInputDTO(machine_id, product_id, 1)
+            await service.deliver_product(input_dto)
+
+    @pytest.mark.asyncio
+    async def test_should_return_output(
+        self,
+    ):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        product_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
+        product_code: str = "00"
+        products = [ProductEntity.create(product_id, "Hersheys", 1, product_code, 0)]
+        owner = OwnerEntity.create(
+            "b9651752-6c44-4578-bdb6-883d703cbff5",
+            "Sebastião Maia",
+            "test@mail.com",
+        )
+        machine = MachineEntity.create(
+            machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products
+        )
+
+        machine_repo = StubMachineRepository(
+            [FindByIdResponseWithSuccessObject(machine)],
+            [UpdateResponseWithSuccessObject()],
+        )
+        service = MachineService(machine_repo)
+        input_dto = DeliverProductInputDTO(machine_id, product_id, 1)
+        output = await service.deliver_product(input_dto)
+
+        assert output.product_id == product_id
+        assert output.product_code == product_code
+
+        assert machine.products[0].qty == 0

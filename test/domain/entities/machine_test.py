@@ -439,3 +439,29 @@ def test_should_get_coins_from_change():
     assert coins_change.coin_25_qty == 0
     assert coins_change.coin_50_qty == 0
     assert coins_change.coin_100_qty == 0
+
+
+def test_should_deliver_product_and_reduce_its_quantity():
+    """Function to test if machine when delivers product reduces its quantity"""
+    products = [
+        ProductEntity.create(
+            "b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 1
+        )
+    ]
+    owner = OwnerEntity.create(
+        "b9651752-6c44-4578-bdb6-883d703cbff6", "Sebastião Maia", "test@mail.com"
+    )
+    machine = MachineEntity.create(
+        "a8351752-ec32-4578-bdb6-883d703cbee7",
+        owner,
+        MachineState.READY,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        products,
+    )
+    machine.deliver_product(products[0].id)
+    assert machine.products[0].qty == 0
