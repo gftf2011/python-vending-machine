@@ -34,6 +34,10 @@ from src.domain.entities.product import ProductEntity
 from src.domain.entities.order_item import OrderItemEntity
 from src.domain.entities.order import OrderEntity, OrderStatus
 
+from src.domain.exceptions.invalid_order_status_change import (
+    InvalidOrderStatusChangeException,
+)
+
 
 class Test_Order_Service_Create:
     @pytest.mark.asyncio
@@ -138,6 +142,36 @@ class Test_Order_Service_Deliver_Order:
             )
             service = OrderService(machine_repo, order_repo)
             input = DeliverOrderInputDTO(order_id)
+            await service.deliver_order(input)
+
+    @pytest.mark.asyncio
+    async def test_should_raise_exception_if_order_is_cancelled(self):
+        machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
+        product: ProductEntity = ProductEntity.create(
+            "b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0
+        )
+        order_items = [
+            OrderItemEntity.create(
+                "f3331752-6c11-4578-adb7-331d703cb445", product, datetime(1970, 1, 1)
+            )
+        ]
+        order = OrderEntity.create(
+            "f3331752-6c11-4578-adb7-331d703cb446",
+            machine_id,
+            order_items,
+            OrderStatus.CANCELED,
+            datetime(1970, 1, 1),
+            datetime(1970, 1, 1),
+        )
+        with pytest.raises(InvalidOrderStatusChangeException):
+            machine_repo = DummyMachineRepository()
+            order_repo = StubOrderRepository(
+                [FindByIdOrderResponseWithSuccessObject(order)],
+                [],
+                [],
+            )
+            service = OrderService(machine_repo, order_repo)
+            input = DeliverOrderInputDTO(order.id.value)
             await service.deliver_order(input)
 
     @pytest.mark.asyncio
