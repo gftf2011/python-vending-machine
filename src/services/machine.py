@@ -17,6 +17,7 @@ from src.domain.contracts.services.machine import (
     AllowDispenseInputDTO,
     DeliverProductInputDTO,
     DeliverProductOutputDTO,
+    FinishDispenseInputDTO,
 )
 
 from src.services.exceptions.unregistered_machine import UnregisteredMachineException
@@ -216,3 +217,14 @@ class MachineService(IMachineService):
         await self.__machine_repo.update(machine_found)
 
         return DeliverProductOutputDTO(product_found.id.value, product_found.code)
+
+    async def finish_dispense(self, input_dto: FinishDispenseInputDTO) -> None:
+        machine_found: MachineEntity = await self.__machine_repo.find_by_id(
+            UUIDValueObject.create(input_dto.machine_id)
+        )
+        if not machine_found:
+            raise UnregisteredMachineException(input_dto.machine_id)
+
+        machine_found.finish_dispense_product()
+
+        await self.__machine_repo.update(machine_found)
