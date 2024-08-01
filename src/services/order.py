@@ -14,11 +14,13 @@ from src.domain.contracts.services.order import (
     CreateOrderInputDTO,
     CreateOrderOutputDTO,
     IOrderService,
+    DeliverOrderInputDTO,
 )
 
 from src.services.exceptions.unregistered_machine import UnregisteredMachineException
 from src.services.exceptions.product_does_not_exist import ProductDoesNotExistException
 from src.services.exceptions.unavailable_product import UnavailableProductException
+from src.services.exceptions.order_does_not_exist import OrderDoesNotExistException
 
 
 class OrderService(IOrderService):
@@ -68,3 +70,14 @@ class OrderService(IOrderService):
         await self.__order_repo.save(order)
 
         return CreateOrderOutputDTO(order.id.value)
+
+    async def deliver_order(self, input_dto: DeliverOrderInputDTO) -> None:
+        order_found: OrderEntity = await self.__order_repo.find_by_id(
+            UUIDValueObject.create(input_dto.order_id)
+        )
+        if not order_found:
+            raise OrderDoesNotExistException(input_dto.order_id)
+
+        order_found.deliver_order()
+
+        await self.__order_repo.update(order_found)
