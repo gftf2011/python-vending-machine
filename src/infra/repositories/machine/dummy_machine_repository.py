@@ -5,5 +5,8 @@ class DummyMachineRepository(IMachineRepository):
     async def find_by_id(self, id):
         pass
 
+    async def save(self, entity):
+        pass
+
     async def update(self, entity):
         pass

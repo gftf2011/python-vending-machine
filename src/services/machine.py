@@ -8,16 +8,19 @@ from src.domain.value_objects.uuid import UUIDValueObject
 
 from src.domain.repositories.machine import IMachineRepository
 
-from src.domain.contracts.services.machine import (
+from src.domain.contracts.dtos.machine import (
     ChooseProductInputDTO,
     ChooseProductOutputDTO,
-    IMachineService,
     AddCoinsInputDTO,
     AddCoinsOutputDTO,
     AllowDispenseInputDTO,
+    FinishDispenseInputDTO,
     DeliverProductInputDTO,
     DeliverProductOutputDTO,
-    FinishDispenseInputDTO,
+)
+
+from src.domain.contracts.services.machine import (
+    IMachineService,
 )
 
 from src.services.exceptions.unregistered_machine import UnregisteredMachineException

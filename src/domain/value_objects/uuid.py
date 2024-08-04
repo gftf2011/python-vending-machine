@@ -38,3 +38,6 @@ class UUIDValueObject:
     @property
     def value(self) -> str:
         return self._value
+
+    def convert_value_to_UUID(self) -> uuid.UUID:
+        return uuid.UUID(self._value, version=4)

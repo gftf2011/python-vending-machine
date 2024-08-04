@@ -1,19 +1,9 @@
 from abc import ABC, abstractmethod
 
-from src.domain.entities.payment import PaymentType
-
-
-class PayForProductInputDTO:
-    def __init__(self, order_id: str, amount_paid: int, payment_type: PaymentType):
-        self.order_id = order_id
-        self.amount_paid = amount_paid
-        self.payment_type = payment_type
-
-
-class PayForProductOutputDTO:
-    def __init__(self, payment_id: str, change: int):
-        self.change = change
-        self.payment_id = payment_id
+from src.domain.contracts.dtos.payment import (
+    PayForProductInputDTO,
+    PayForProductOutputDTO,
+)
 
 
 class IPaymentService(ABC):

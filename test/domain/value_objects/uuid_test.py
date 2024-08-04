@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 
 from src.domain.value_objects.uuid import UUIDValueObject
@@ -31,3 +33,9 @@ def test_should_create_new():
     """Function to test if an UUID is created"""
     sut = UUIDValueObject.create_new()
     assert sut.value is not None
+
+
+def test_should_convert_to_UUID():
+    """Function to test if an UUID is created"""
+    sut = UUIDValueObject.create_new()
+    assert isinstance(sut.convert_value_to_UUID(), uuid.UUID) is True

@@ -3,7 +3,7 @@ import pytest
 from src.domain.entities.product import ProductEntity
 from src.domain.entities.owner import OwnerEntity
 from src.domain.entities.machine import MachineEntity, MachineState
-from src.domain.contracts.services.machine import (
+from src.domain.contracts.dtos.machine import (
     ChooseProductInputDTO,
     AddCoinsInputDTO,
     AllowDispenseInputDTO,
@@ -36,7 +36,7 @@ class Test_Machine_Service_Choose_Product:
         id_value: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(UnregisteredMachineException):
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(None)], []
+                [FindByIdResponseWithSuccessObject(None)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = ChooseProductInputDTO("00", id_value)
@@ -56,7 +56,7 @@ class Test_Machine_Service_Choose_Product:
                 id_value, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products
             )
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], []
+                [FindByIdResponseWithSuccessObject(machine)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = ChooseProductInputDTO("00", id_value)
@@ -77,7 +77,7 @@ class Test_Machine_Service_Choose_Product:
                 machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
             )
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], []
+                [FindByIdResponseWithSuccessObject(machine)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = ChooseProductInputDTO(product_code, machine_id)
@@ -102,7 +102,7 @@ class Test_Machine_Service_Choose_Product:
                 machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
             )
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], []
+                [FindByIdResponseWithSuccessObject(machine)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = ChooseProductInputDTO(product_code, machine_id)
@@ -126,7 +126,7 @@ class Test_Machine_Service_Choose_Product:
         )
 
         machine_repo = StubMachineRepository(
-            [FindByIdResponseWithSuccessObject(machine)], []
+            [FindByIdResponseWithSuccessObject(machine)], [], []
         )
 
         service = MachineService(machine_repo)
@@ -145,7 +145,7 @@ class Test_Machine_Service_Add_Coins:
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(UnregisteredMachineException):
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(None)], []
+                [FindByIdResponseWithSuccessObject(None)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = AddCoinsInputDTO(machine_id, 0, 0, 0, 0, 0, 0, 0)
@@ -165,7 +165,7 @@ class Test_Machine_Service_Add_Coins:
                 machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products
             )
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], []
+                [FindByIdResponseWithSuccessObject(machine)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = AddCoinsInputDTO(machine_id, 0, 0, 0, 0, 0, 0, 0)
@@ -185,7 +185,7 @@ class Test_Machine_Service_Add_Coins:
                 machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
             )
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], []
+                [FindByIdResponseWithSuccessObject(machine)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = AddCoinsInputDTO(machine_id, -1, 0, 0, 0, 0, 0, 0)
@@ -206,6 +206,7 @@ class Test_Machine_Service_Add_Coins:
         machine_repo = StubMachineRepository(
             [FindByIdResponseWithSuccessObject(machine)],
             [UpdateResponseWithSuccessObject()],
+            [],
         )
         service = MachineService(machine_repo)
 
@@ -241,6 +242,7 @@ class Test_Machine_Service_Add_Coins:
         machine_repo = StubMachineRepository(
             [FindByIdResponseWithSuccessObject(machine)],
             [UpdateResponseWithSuccessObject()],
+            [],
         )
         service = MachineService(machine_repo)
 
@@ -268,7 +270,7 @@ class Test_Machine_Service_Allow_Dispense:
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(UnregisteredMachineException):
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(None)], []
+                [FindByIdResponseWithSuccessObject(None)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = AllowDispenseInputDTO(machine_id)
@@ -289,6 +291,7 @@ class Test_Machine_Service_Allow_Dispense:
         machine_repo = StubMachineRepository(
             [FindByIdResponseWithSuccessObject(machine)],
             [UpdateResponseWithSuccessObject()],
+            [],
         )
         service = MachineService(machine_repo)
 
@@ -306,7 +309,7 @@ class Test_Machine_Service_Deliver_Product:
         product_qty: int = 1
         with pytest.raises(UnregisteredMachineException):
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(None)], []
+                [FindByIdResponseWithSuccessObject(None)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = DeliverProductInputDTO(machine_id, product_id, product_qty)
@@ -328,7 +331,7 @@ class Test_Machine_Service_Deliver_Product:
             )
 
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], []
+                [FindByIdResponseWithSuccessObject(machine)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = DeliverProductInputDTO(machine_id, product_id, 0)
@@ -351,7 +354,7 @@ class Test_Machine_Service_Deliver_Product:
             )
 
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], []
+                [FindByIdResponseWithSuccessObject(machine)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = DeliverProductInputDTO(machine_id, product_id_2, 0)
@@ -375,7 +378,7 @@ class Test_Machine_Service_Deliver_Product:
             )
 
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], []
+                [FindByIdResponseWithSuccessObject(machine)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = DeliverProductInputDTO(machine_id, product_id, 1)
@@ -401,6 +404,7 @@ class Test_Machine_Service_Deliver_Product:
         machine_repo = StubMachineRepository(
             [FindByIdResponseWithSuccessObject(machine)],
             [UpdateResponseWithSuccessObject()],
+            [],
         )
         service = MachineService(machine_repo)
         input_dto = DeliverProductInputDTO(machine_id, product_id, 1)
@@ -418,7 +422,7 @@ class Test_Machine_Service_Finish_Dispense:
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(UnregisteredMachineException):
             machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(None)], []
+                [FindByIdResponseWithSuccessObject(None)], [], []
             )
             service = MachineService(machine_repo)
             input_dto = FinishDispenseInputDTO(machine_id)
@@ -439,6 +443,7 @@ class Test_Machine_Service_Finish_Dispense:
         machine_repo = StubMachineRepository(
             [FindByIdResponseWithSuccessObject(machine)],
             [UpdateResponseWithSuccessObject()],
+            [],
         )
         service = MachineService(machine_repo)
 

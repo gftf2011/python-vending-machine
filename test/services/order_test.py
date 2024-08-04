@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from src.domain.contracts.services.order import (
+from src.domain.contracts.dtos.order import (
     CreateOrderInputDTO,
     DeliverOrderInputDTO,
 )
@@ -47,7 +47,7 @@ class Test_Order_Service_Create:
         product_qty: int = 0
         with pytest.raises(UnregisteredMachineException):
             machine_repo = StubMachineRepository(
-                [FindByIdMachineResponseWithSuccessObject(None)], []
+                [FindByIdMachineResponseWithSuccessObject(None)], [], []
             )
             order_repo = DummyOrderRepository()
             service = OrderService(machine_repo, order_repo)
@@ -74,7 +74,7 @@ class Test_Order_Service_Create:
                 machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
             )
             machine_repo = StubMachineRepository(
-                [FindByIdMachineResponseWithSuccessObject(machine)], []
+                [FindByIdMachineResponseWithSuccessObject(machine)], [], []
             )
             order_repo = DummyOrderRepository()
             service = OrderService(machine_repo, order_repo)
@@ -97,7 +97,7 @@ class Test_Order_Service_Create:
                 machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
             )
             machine_repo = StubMachineRepository(
-                [FindByIdMachineResponseWithSuccessObject(machine)], []
+                [FindByIdMachineResponseWithSuccessObject(machine)], [], []
             )
             order_repo = DummyOrderRepository()
             service = OrderService(machine_repo, order_repo)
@@ -119,7 +119,7 @@ class Test_Order_Service_Create:
         )
 
         machine_repo = StubMachineRepository(
-            [FindByIdMachineResponseWithSuccessObject(machine)], []
+            [FindByIdMachineResponseWithSuccessObject(machine)], [], []
         )
         order_repo = DummyOrderRepository()
 

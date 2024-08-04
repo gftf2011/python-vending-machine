@@ -6,10 +6,13 @@ from src.domain.value_objects.uuid import UUIDValueObject
 from src.domain.repositories.order import IOrderRepository
 from src.domain.repositories.payment import IPaymentRepository
 
-from src.domain.contracts.services.payment import (
-    IPaymentService,
+from src.domain.contracts.dtos.payment import (
     PayForProductInputDTO,
     PayForProductOutputDTO,
+)
+
+from src.domain.contracts.services.payment import (
+    IPaymentService,
 )
 
 from src.services.exceptions.order_does_not_exist import OrderDoesNotExistException

@@ -12,5 +12,9 @@ class IMachineRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def save(self, entity: MachineEntity) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
     async def update(self, entity: MachineEntity) -> None:
         raise NotImplementedError

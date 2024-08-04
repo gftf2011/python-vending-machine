@@ -10,11 +10,14 @@ from src.domain.value_objects.uuid import UUIDValueObject
 from src.domain.repositories.machine import IMachineRepository
 from src.domain.repositories.order import IOrderRepository
 
-from src.domain.contracts.services.order import (
+from src.domain.contracts.dtos.order import (
     CreateOrderInputDTO,
     CreateOrderOutputDTO,
-    IOrderService,
     DeliverOrderInputDTO,
+)
+
+from src.domain.contracts.services.order import (
+    IOrderService,
 )
 
 from src.services.exceptions.unregistered_machine import UnregisteredMachineException

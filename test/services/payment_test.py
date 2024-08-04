@@ -1,5 +1,6 @@
-import pytest
 from datetime import datetime
+
+import pytest
 
 from src.domain.entities.product import ProductEntity
 from src.domain.entities.order_item import OrderItemEntity
@@ -7,7 +8,9 @@ from src.domain.entities.order import OrderEntity, OrderStatus
 
 from src.domain.entities.payment import PaymentType
 
-from src.domain.contracts.services.payment import PayForProductInputDTO
+from src.domain.contracts.dtos.payment import (
+    PayForProductInputDTO,
+)
 
 from src.services.payment import PaymentService
 
@@ -128,5 +131,5 @@ class Test_Payment_Service_Pay_For_Product:
 
         output = await service.pay_for_product(input)
 
-        assert output.payment_id != None
+        assert output.payment_id is not None
         assert output.change == 0
