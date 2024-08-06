@@ -42,7 +42,7 @@ class AddCoinsInputDTO:
     def __init__(
         self,
         machine_id: str,
-        change: int,
+        product_id: str,
         coin_01_qty: int,
         coin_05_qty: int,
         coin_10_qty: int,
@@ -51,7 +51,7 @@ class AddCoinsInputDTO:
         coin_100_qty: int,
     ):
         self.machine_id = machine_id
-        self.change = change
+        self.product_id = product_id
         self.coin_01_qty = coin_01_qty
         self.coin_05_qty = coin_05_qty
         self.coin_10_qty = coin_10_qty

@@ -10,6 +10,7 @@ from src.domain.contracts.dtos.machine import (
     DeliverProductInputDTO,
     FinishDispenseInputDTO,
 )
+from src.domain.exceptions.no_change_available import NoChangeAvailableException
 
 from src.services.machine import MachineService
 from src.services.exceptions.unregistered_machine import UnregisteredMachineException
@@ -175,7 +176,11 @@ class Test_Machine_Service_Add_Coins:
     async def test_should_raise_exception_if_change_is_negative(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(IncorrectNegativeChangeException):
-            products = []
+            products = [
+                ProductEntity.create(
+                    "b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 1
+                )
+            ]
             owner = OwnerEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cbff5",
                 "Sebastião Maia",
@@ -188,50 +193,104 @@ class Test_Machine_Service_Add_Coins:
                 [FindByIdResponseWithSuccessObject(machine)], [], []
             )
             service = MachineService(machine_repo)
-            input_dto = AddCoinsInputDTO(machine_id, -1, 0, 0, 0, 0, 0, 0)
+            input_dto = AddCoinsInputDTO(
+                machine_id, products[0].id.value, 0, 0, 0, 0, 0, 0
+            )
+            await service.add_coins(input_dto)
+
+    @pytest.mark.asyncio
+    async def test_should_raise_exception_if_product_does_not_exists(
+        self,
+    ):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        with pytest.raises(ProductDoesNotExistException):
+            products = [
+                ProductEntity.create(
+                    "b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 150
+                )
+            ]
+            owner = OwnerEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cbff5",
+                "Sebastião Maia",
+                "test@mail.com",
+            )
+            machine = MachineEntity.create(
+                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
+            )
+            machine_repo = StubMachineRepository(
+                [FindByIdResponseWithSuccessObject(machine)], [], []
+            )
+            service = MachineService(machine_repo)
+            input_dto = AddCoinsInputDTO(
+                machine_id, "b9651752-6c44-4578-bdb6-883d703cbff3", 0, 0, 0, 0, 0, 2
+            )
+            await service.add_coins(input_dto)
+
+    @pytest.mark.asyncio
+    async def test_should_raise_exception_if_product_is_out_of_stock(
+        self,
+    ):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        with pytest.raises(UnavailableProductException):
+            products = [
+                ProductEntity.create(
+                    "b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 0, "00", 150
+                )
+            ]
+            owner = OwnerEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cbff5",
+                "Sebastião Maia",
+                "test@mail.com",
+            )
+            machine = MachineEntity.create(
+                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
+            )
+            machine_repo = StubMachineRepository(
+                [FindByIdResponseWithSuccessObject(machine)], [], []
+            )
+            service = MachineService(machine_repo)
+            input_dto = AddCoinsInputDTO(
+                machine_id, products[0].id.value, 0, 0, 0, 0, 1, 1
+            )
+            await service.add_coins(input_dto)
+
+    @pytest.mark.asyncio
+    async def test_should_raise_exception_if_machine_does_not_have_enough_coins_to_return(
+        self,
+    ):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        with pytest.raises(NoChangeAvailableException):
+            products = [
+                ProductEntity.create(
+                    "b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 150
+                )
+            ]
+            owner = OwnerEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cbff5",
+                "Sebastião Maia",
+                "test@mail.com",
+            )
+            machine = MachineEntity.create(
+                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
+            )
+            machine_repo = StubMachineRepository(
+                [FindByIdResponseWithSuccessObject(machine)], [], []
+            )
+            service = MachineService(machine_repo)
+            input_dto = AddCoinsInputDTO(
+                machine_id, products[0].id.value, 0, 0, 0, 0, 0, 2
+            )
             await service.add_coins(input_dto)
 
     @pytest.mark.asyncio
     async def test_should_return_no_change_when_change_is_0(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
 
-        products = []
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
-        machine = MachineEntity.create(
-            machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 1, products
-        )
-
-        machine_repo = StubMachineRepository(
-            [FindByIdResponseWithSuccessObject(machine)],
-            [UpdateResponseWithSuccessObject()],
-            [],
-        )
-        service = MachineService(machine_repo)
-
-        input_dto = AddCoinsInputDTO(machine_id, 0, 1, 0, 0, 0, 0, 0)
-        output = await service.add_coins(input_dto)
-
-        assert output.coin_01_qty == 0
-        assert output.coin_05_qty == 0
-        assert output.coin_10_qty == 0
-        assert output.coin_25_qty == 0
-        assert output.coin_50_qty == 0
-        assert output.coin_100_qty == 0
-
-        assert machine.coin_01.qty == 1
-        assert machine.coin_05.qty == 0
-        assert machine.coin_10.qty == 0
-        assert machine.coin_25.qty == 0
-        assert machine.coin_50.qty == 0
-        assert machine.coin_100.qty == 1
-
-    @pytest.mark.asyncio
-    async def test_should_return_change(self):
-        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
-
-        products = []
+        products = [
+            ProductEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 100
+            )
+        ]
         owner = OwnerEntity.create(
             "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
         )
@@ -246,21 +305,61 @@ class Test_Machine_Service_Add_Coins:
         )
         service = MachineService(machine_repo)
 
-        input_dto = AddCoinsInputDTO(machine_id, 100, 1, 0, 0, 2, 1, 0)
+        input_dto = AddCoinsInputDTO(machine_id, products[0].id.value, 0, 0, 0, 0, 0, 1)
         output = await service.add_coins(input_dto)
 
         assert output.coin_01_qty == 0
         assert output.coin_05_qty == 0
         assert output.coin_10_qty == 0
-        assert output.coin_25_qty == 2
-        assert output.coin_50_qty == 1
+        assert output.coin_25_qty == 0
+        assert output.coin_50_qty == 0
         assert output.coin_100_qty == 0
 
-        assert machine.coin_01.qty == 1
+        assert machine.coin_01.qty == 0
         assert machine.coin_05.qty == 0
         assert machine.coin_10.qty == 0
         assert machine.coin_25.qty == 0
         assert machine.coin_50.qty == 0
+        assert machine.coin_100.qty == 1
+
+    @pytest.mark.asyncio
+    async def test_should_return_change(self):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+
+        products = [
+            ProductEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 100
+            )
+        ]
+        owner = OwnerEntity.create(
+            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
+        )
+        machine = MachineEntity.create(
+            machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
+        )
+
+        machine_repo = StubMachineRepository(
+            [FindByIdResponseWithSuccessObject(machine)],
+            [UpdateResponseWithSuccessObject()],
+            [],
+        )
+        service = MachineService(machine_repo)
+
+        input_dto = AddCoinsInputDTO(machine_id, products[0].id.value, 1, 0, 0, 2, 1, 0)
+        output = await service.add_coins(input_dto)
+
+        assert output.coin_01_qty == 1
+        assert output.coin_05_qty == 0
+        assert output.coin_10_qty == 0
+        assert output.coin_25_qty == 0
+        assert output.coin_50_qty == 0
+        assert output.coin_100_qty == 0
+
+        assert machine.coin_01.qty == 0
+        assert machine.coin_05.qty == 0
+        assert machine.coin_10.qty == 0
+        assert machine.coin_25.qty == 2
+        assert machine.coin_50.qty == 1
         assert machine.coin_100.qty == 0
 
 

@@ -21,7 +21,7 @@ class ChooseProductInputControllerDTO:
 class AddCoinsInputControllerDTO:
     def __init__(
         self,
-        change: int,
+        product_id: str,
         coin_01_qty: int,
         coin_05_qty: int,
         coin_10_qty: int,
@@ -29,7 +29,7 @@ class AddCoinsInputControllerDTO:
         coin_50_qty: int,
         coin_100_qty: int,
     ):
-        self.change = change
+        self.product_id = product_id
         self.coin_01_qty = coin_01_qty
         self.coin_05_qty = coin_05_qty
         self.coin_10_qty = coin_10_qty
@@ -108,7 +108,7 @@ class MachineController:
             output = await self._machine_service.add_coins(
                 AddCoinsInputDTO(
                     self._machine_id,
-                    input_dto.change,
+                    input_dto.product_id,
                     input_dto.coin_01_qty,
                     input_dto.coin_05_qty,
                     input_dto.coin_10_qty,
