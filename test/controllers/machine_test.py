@@ -601,3 +601,61 @@ class Test_Machine_Controller_Add_coins:
         assert json.loads(output)["error"]["data"]["coin_25"] == 0
         assert json.loads(output)["error"]["data"]["coin_50"] == 1
         assert json.loads(output)["error"]["data"]["coin_100"] == 1
+
+    @pytest.mark.asyncio
+    async def test_should_return_change(
+        self,
+    ):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        products = [
+            ProductEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100
+            ),
+            ProductEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cc000",
+                "Almond Joy Candy Bar",
+                1,
+                "01",
+                125,
+            ),
+            ProductEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
+            ),
+        ]
+        owner = OwnerEntity.create(
+            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
+        )
+        machine = MachineEntity.create(
+            machine_id,
+            owner,
+            MachineState.READY,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            products,
+        )
+
+        machine_repo = FakeMachineRepository.get_instance()
+
+        await machine_repo.save(machine)
+
+        machine_service = MachineService(machine_repo)
+
+        json_presenter = JSONPresenter()
+        machine_controller = MachineController(
+            json_presenter, machine_service, machine_id
+        )
+
+        output = await machine_controller.add_coins(
+            AddCoinsInputControllerDTO(products[0].id.value, 0, 0, 0, 0, 0, 2)
+        )
+
+        assert json.loads(output)["coin_01_qty"] == 0
+        assert json.loads(output)["coin_05_qty"] == 0
+        assert json.loads(output)["coin_10_qty"] == 0
+        assert json.loads(output)["coin_25_qty"] == 0
+        assert json.loads(output)["coin_50_qty"] == 0
+        assert json.loads(output)["coin_100_qty"] == 1

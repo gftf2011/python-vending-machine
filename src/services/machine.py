@@ -111,7 +111,7 @@ class MachineService(IMachineService):
 
         if change < 0:
             raise IncorrectNegativeChangeException()
-        
+
         machine_found.add_coins(
             input_dto.coin_01_qty,
             input_dto.coin_05_qty,
