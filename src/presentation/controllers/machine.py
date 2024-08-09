@@ -6,9 +6,19 @@ from src.domain.contracts.dtos.machine import (
     ChooseProductOutputDTO,
     ChooseProductInputDTO,
     AddCoinsInputDTO,
+    AllowDispenseInputDTO,
+    DeliverProductInputDTO,
+    FinishDispenseInputDTO,
 )
+from src.domain.contracts.dtos.order import CreateOrderInputDTO, CreateOrderOutputDTO
+from src.domain.contracts.dtos.payment import (
+    PayForProductInputDTO,
+)
+from src.domain.entities.payment import PaymentType
 
 from src.domain.contracts.services.machine import IMachineService
+from src.domain.contracts.services.order import IOrderService
+from src.domain.contracts.services.payment import IPaymentService
 
 from src.presentation.contracts.presenters.base import BasePresenter
 
@@ -18,10 +28,12 @@ class ChooseProductInputControllerDTO:
         self.product_code = product_code
 
 
-class AddCoinsInputControllerDTO:
+class PayForProductInputControllerDTO:
     def __init__(
         self,
         product_id: str,
+        product_qty: int,
+        payment_type: PaymentType,
         coin_01_qty: int,
         coin_05_qty: int,
         coin_10_qty: int,
@@ -30,6 +42,8 @@ class AddCoinsInputControllerDTO:
         coin_100_qty: int,
     ):
         self.product_id = product_id
+        self.product_qty = product_qty
+        self.payment_type = payment_type
         self.coin_01_qty = coin_01_qty
         self.coin_05_qty = coin_05_qty
         self.coin_10_qty = coin_10_qty
@@ -46,7 +60,7 @@ class ChooseProductErrorOutputControllerDTO(BaseOutput):
         return {"error": {"message": self.message}}
 
 
-class AddCoinsErrorOutputControllerDTO(BaseOutput):
+class PayForProductErrorOutputControllerDTO(BaseOutput):
     def __init__(
         self,
         message: str,
@@ -86,10 +100,14 @@ class MachineController:
         self,
         presenter: BasePresenter,
         machine_service: IMachineService,
+        order_service: IOrderService,
+        payment_service: IPaymentService,
         machine_id: str,
     ):
         self._presenter = presenter
         self._machine_service = machine_service
+        self._order_service = order_service
+        self._payment_service = payment_service
         self._machine_id = machine_id
 
     async def choose_product(self, input_dto: ChooseProductInputControllerDTO) -> Any:
@@ -103,9 +121,9 @@ class MachineController:
                 ChooseProductErrorOutputControllerDTO(str(error))
             )
 
-    async def add_coins(self, input_dto: AddCoinsInputControllerDTO) -> Any:
+    async def pay_for_product(self, input_dto: PayForProductInputControllerDTO) -> Any:
         try:
-            output = await self._machine_service.add_coins(
+            add_coins_output = await self._machine_service.add_coins(
                 AddCoinsInputDTO(
                     self._machine_id,
                     input_dto.product_id,
@@ -117,10 +135,35 @@ class MachineController:
                     input_dto.coin_100_qty,
                 )
             )
-            return self._presenter.execute(output)
+            create_order_output: CreateOrderOutputDTO = (
+                await self._order_service.create(
+                    CreateOrderInputDTO(
+                        self._machine_id, input_dto.product_id, input_dto.product_qty
+                    )
+                )
+            )
+            await self._payment_service.pay_for_product(
+                PayForProductInputDTO(
+                    create_order_output.order_id,
+                    add_coins_output.amount_paid,
+                    input_dto.payment_type,
+                )
+            )
+            await self._machine_service.allow_dispense(
+                AllowDispenseInputDTO(self._machine_id)
+            )
+            await self._machine_service.deliver_product(
+                DeliverProductInputDTO(
+                    self._machine_id, input_dto.product_id, input_dto.product_qty
+                )
+            )
+            await self._machine_service.finish_dispense(
+                FinishDispenseInputDTO(self._machine_id)
+            )
+            return self._presenter.execute(add_coins_output)
         except Exception as error:
             return self._presenter.execute(
-                AddCoinsErrorOutputControllerDTO(
+                PayForProductErrorOutputControllerDTO(
                     str(error),
                     input_dto.coin_01_qty,
                     input_dto.coin_05_qty,

@@ -69,6 +69,7 @@ class AddCoinsOutputDTO(BaseOutput):
         coin_25_qty: int,
         coin_50_qty: int,
         coin_100_qty: int,
+        amount_paid: int,
     ):
         self.coin_01_qty = coin_01_qty
         self.coin_05_qty = coin_05_qty
@@ -76,6 +77,7 @@ class AddCoinsOutputDTO(BaseOutput):
         self.coin_25_qty = coin_25_qty
         self.coin_50_qty = coin_50_qty
         self.coin_100_qty = coin_100_qty
+        self.amount_paid = amount_paid
 
     def to_dict(self) -> AddCoinsOutputDictType:
         return {
@@ -85,6 +87,7 @@ class AddCoinsOutputDTO(BaseOutput):
             "coin_25_qty": self.coin_25_qty,
             "coin_50_qty": self.coin_50_qty,
             "coin_100_qty": self.coin_100_qty,
+            "amount_paid": self.amount_paid,
         }
 
 

@@ -4,34 +4,49 @@ import pytest
 from src.domain.entities.machine import MachineEntity, MachineState
 from src.domain.entities.owner import OwnerEntity
 from src.domain.entities.product import ProductEntity
+from src.domain.entities.payment import PaymentType
 
 from src.presentation.controllers.machine import (
     ChooseProductInputControllerDTO,
-    AddCoinsInputControllerDTO,
+    PayForProductInputControllerDTO,
     MachineController,
 )
 
 from src.presentation.presenters.json_presenter import JSONPresenter
 
 from src.services.machine import MachineService
+from src.services.order import OrderService
+from src.services.payment import PaymentService
 
 from src.infra.repositories.machine.fake_machine_repository import FakeMachineRepository
+from src.infra.repositories.order.fake_order_repository import FakeOrderRepository
+from src.infra.repositories.payment.fake_payment_repository import FakePaymentRepository
 
 
 class Test_Machine_Controller_Choose_Product:
     @pytest.fixture(autouse=True)
     def reset_fake_repos(self):
         FakeMachineRepository.reset_instance()
+        FakeOrderRepository.reset_instance()
+        FakePaymentRepository.reset_instance()
 
     @pytest.mark.asyncio
     async def test_should_return_error_message_if_machine_is_not_registered(self):
         machine_repo = FakeMachineRepository.get_instance()
+        order_repo = FakeOrderRepository.get_instance()
+        payment_repo = FakePaymentRepository.get_instance()
 
         machine_service = MachineService(machine_repo)
+        order_service = OrderService(machine_repo, order_repo)
+        payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
+            json_presenter,
+            machine_service,
+            order_service,
+            payment_service,
+            "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f",
         )
 
         output = await machine_controller.choose_product(
@@ -80,6 +95,12 @@ class Test_Machine_Controller_Choose_Product:
         )
 
         machine_repo = FakeMachineRepository.get_instance()
+        order_repo = FakeOrderRepository.get_instance()
+        payment_repo = FakePaymentRepository.get_instance()
+
+        machine_service = MachineService(machine_repo)
+        order_service = OrderService(machine_repo, order_repo)
+        payment_service = PaymentService(order_repo, payment_repo)
 
         await machine_repo.save(machine)
 
@@ -87,7 +108,7 @@ class Test_Machine_Controller_Choose_Product:
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, machine_id
+            json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
         output = await machine_controller.choose_product(
@@ -134,14 +155,18 @@ class Test_Machine_Controller_Choose_Product:
         )
 
         machine_repo = FakeMachineRepository.get_instance()
+        order_repo = FakeOrderRepository.get_instance()
+        payment_repo = FakePaymentRepository.get_instance()
 
         await machine_repo.save(machine)
 
         machine_service = MachineService(machine_repo)
+        order_service = OrderService(machine_repo, order_repo)
+        payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, machine_id
+            json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
         output = await machine_controller.choose_product(
@@ -185,14 +210,18 @@ class Test_Machine_Controller_Choose_Product:
         )
 
         machine_repo = FakeMachineRepository.get_instance()
+        order_repo = FakeOrderRepository.get_instance()
+        payment_repo = FakePaymentRepository.get_instance()
 
         await machine_repo.save(machine)
 
         machine_service = MachineService(machine_repo)
+        order_service = OrderService(machine_repo, order_repo)
+        payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, machine_id
+            json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
         output = await machine_controller.choose_product(
@@ -241,14 +270,18 @@ class Test_Machine_Controller_Choose_Product:
         )
 
         machine_repo = FakeMachineRepository.get_instance()
+        order_repo = FakeOrderRepository.get_instance()
+        payment_repo = FakePaymentRepository.get_instance()
 
         await machine_repo.save(machine)
 
         machine_service = MachineService(machine_repo)
+        order_service = OrderService(machine_repo, order_repo)
+        payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, machine_id
+            json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
         output = await machine_controller.choose_product(
@@ -262,25 +295,77 @@ class Test_Machine_Controller_Choose_Product:
         assert loaded_output["product_name"] == products[0].name
 
 
-class Test_Machine_Controller_Add_coins:
+class Test_Machine_Controller_Pay_For_Product:
     @pytest.fixture(autouse=True)
     def reset_fake_repos(self):
         FakeMachineRepository.reset_instance()
+        FakeOrderRepository.reset_instance()
+        FakePaymentRepository.reset_instance()
 
     @pytest.mark.asyncio
     async def test_should_return_error_message_if_machine_is_not_registered(self):
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        products = [
+            ProductEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100
+            ),
+            ProductEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cc000",
+                "Almond Joy Candy Bar",
+                1,
+                "01",
+                125,
+            ),
+            ProductEntity.create(
+                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
+            ),
+        ]
+        owner = OwnerEntity.create(
+            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
+        )
+        machine = MachineEntity.create(
+            machine_id,
+            owner,
+            MachineState.READY,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            products,
+        )
+
         machine_repo = FakeMachineRepository.get_instance()
+        order_repo = FakeOrderRepository.get_instance()
+        payment_repo = FakePaymentRepository.get_instance()
+
+        await machine_repo.save(machine)
 
         machine_service = MachineService(machine_repo)
+        order_service = OrderService(machine_repo, order_repo)
+        payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
+            json_presenter,
+            machine_service,
+            order_service,
+            payment_service,
+            "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f",
         )
 
-        output = await machine_controller.add_coins(
-            AddCoinsInputControllerDTO(
-                "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac50", 0, 0, 0, 0, 0, 0
+        output = await machine_controller.pay_for_product(
+            PayForProductInputControllerDTO(
+                machine_id,
+                products[0].id.value,
+                PaymentType.CASH,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
             )
         )
 
@@ -332,19 +417,35 @@ class Test_Machine_Controller_Add_coins:
         )
 
         machine_repo = FakeMachineRepository.get_instance()
+        order_repo = FakeOrderRepository.get_instance()
+        payment_repo = FakePaymentRepository.get_instance()
 
         await machine_repo.save(machine)
 
         machine_service = MachineService(machine_repo)
+        order_service = OrderService(machine_repo, order_repo)
+        payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, machine_id
+            json_presenter,
+            machine_service,
+            order_service,
+            payment_service,
+            machine_id,
         )
 
-        output = await machine_controller.add_coins(
-            AddCoinsInputControllerDTO(
-                "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac50", 0, 0, 0, 0, 0, 0
+        output = await machine_controller.pay_for_product(
+            PayForProductInputControllerDTO(
+                machine_id,
+                products[0].id.value,
+                PaymentType.CASH,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
             )
         )
 
@@ -394,18 +495,24 @@ class Test_Machine_Controller_Add_coins:
         )
 
         machine_repo = FakeMachineRepository.get_instance()
+        order_repo = FakeOrderRepository.get_instance()
+        payment_repo = FakePaymentRepository.get_instance()
 
         await machine_repo.save(machine)
 
         machine_service = MachineService(machine_repo)
+        order_service = OrderService(machine_repo, order_repo)
+        payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, machine_id
+            json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
-        output = await machine_controller.add_coins(
-            AddCoinsInputControllerDTO(products[0].id.value, 4, 0, 2, 1, 1, 0)
+        output = await machine_controller.pay_for_product(
+            PayForProductInputControllerDTO(
+                products[0].id.value, 1, PaymentType.CASH, 4, 0, 2, 1, 1, 0
+            )
         )
 
         assert json.loads(output)["error"]["message"] == "change can not be negative"
@@ -453,19 +560,31 @@ class Test_Machine_Controller_Add_coins:
         )
 
         machine_repo = FakeMachineRepository.get_instance()
+        order_repo = FakeOrderRepository.get_instance()
+        payment_repo = FakePaymentRepository.get_instance()
 
         await machine_repo.save(machine)
 
         machine_service = MachineService(machine_repo)
+        order_service = OrderService(machine_repo, order_repo)
+        payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, machine_id
+            json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
-        output = await machine_controller.add_coins(
-            AddCoinsInputControllerDTO(
-                "b9651752-6c44-4578-bdb6-883d703cbffe", 0, 0, 0, 0, 0, 0
+        output = await machine_controller.pay_for_product(
+            PayForProductInputControllerDTO(
+                "b9651752-6c44-4578-bdb6-883d703cbffe",
+                1,
+                PaymentType.CASH,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
             )
         )
 
@@ -514,18 +633,32 @@ class Test_Machine_Controller_Add_coins:
         )
 
         machine_repo = FakeMachineRepository.get_instance()
+        order_repo = FakeOrderRepository.get_instance()
+        payment_repo = FakePaymentRepository.get_instance()
 
         await machine_repo.save(machine)
 
         machine_service = MachineService(machine_repo)
+        order_service = OrderService(machine_repo, order_repo)
+        payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, machine_id
+            json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
-        output = await machine_controller.add_coins(
-            AddCoinsInputControllerDTO(products[0].id.value, 0, 1, 0, 0, 0, 0)
+        output = await machine_controller.pay_for_product(
+            PayForProductInputControllerDTO(
+                products[0].id.value,
+                1,
+                PaymentType.CASH,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+            )
         )
 
         assert (
@@ -578,18 +711,32 @@ class Test_Machine_Controller_Add_coins:
         )
 
         machine_repo = FakeMachineRepository.get_instance()
+        order_repo = FakeOrderRepository.get_instance()
+        payment_repo = FakePaymentRepository.get_instance()
 
         await machine_repo.save(machine)
 
         machine_service = MachineService(machine_repo)
+        order_service = OrderService(machine_repo, order_repo)
+        payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, machine_id
+            json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
-        output = await machine_controller.add_coins(
-            AddCoinsInputControllerDTO(products[1].id.value, 0, 0, 0, 0, 1, 1)
+        output = await machine_controller.pay_for_product(
+            PayForProductInputControllerDTO(
+                products[1].id.value,
+                1,
+                PaymentType.CASH,
+                0,
+                0,
+                0,
+                0,
+                1,
+                1,
+            )
         )
 
         assert (
@@ -639,18 +786,32 @@ class Test_Machine_Controller_Add_coins:
         )
 
         machine_repo = FakeMachineRepository.get_instance()
+        order_repo = FakeOrderRepository.get_instance()
+        payment_repo = FakePaymentRepository.get_instance()
 
         await machine_repo.save(machine)
 
         machine_service = MachineService(machine_repo)
+        order_service = OrderService(machine_repo, order_repo)
+        payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, machine_id
+            json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
-        output = await machine_controller.add_coins(
-            AddCoinsInputControllerDTO(products[0].id.value, 0, 0, 0, 0, 0, 2)
+        output = await machine_controller.pay_for_product(
+            PayForProductInputControllerDTO(
+                products[0].id.value,
+                1,
+                PaymentType.CASH,
+                0,
+                0,
+                0,
+                0,
+                0,
+                2,
+            )
         )
 
         assert json.loads(output)["coin_01_qty"] == 0

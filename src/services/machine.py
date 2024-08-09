@@ -132,6 +132,7 @@ class MachineService(IMachineService):
             coins.coin_25_qty,
             coins.coin_50_qty,
             coins.coin_100_qty,
+            product_found.unit_price,
         )
 
     async def allow_dispense(self, input_dto: AllowDispenseInputDTO) -> None:

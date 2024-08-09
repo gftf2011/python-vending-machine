@@ -314,6 +314,7 @@ class Test_Machine_Service_Add_Coins:
         assert output.coin_25_qty == 0
         assert output.coin_50_qty == 0
         assert output.coin_100_qty == 0
+        assert output.amount_paid == products[0].unit_price
 
         assert machine.coin_01.qty == 0
         assert machine.coin_05.qty == 0
@@ -354,6 +355,7 @@ class Test_Machine_Service_Add_Coins:
         assert output.coin_25_qty == 0
         assert output.coin_50_qty == 0
         assert output.coin_100_qty == 0
+        assert output.amount_paid == products[0].unit_price
 
         assert machine.coin_01.qty == 0
         assert machine.coin_05.qty == 0
