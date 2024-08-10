@@ -1,9 +1,12 @@
 {
+  "python.pythonPath": "local/bin/python",
   "python.linting.pylintEnabled": true,
   "python.linting.enabled": true,
   "python.linting.pylintArgs": ["--rcfile=.pylintrc"],
 
   "python.testing.pytestEnabled": true,
+
+  "python.defaultInterpreterPath": "local/bin/python",
 
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter",

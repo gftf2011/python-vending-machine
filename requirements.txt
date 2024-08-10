@@ -1,4 +1,7 @@
+asyncio
 pytest
 pytest-asyncio
+psycopg2
 pylint
 black
+testcontainers
