@@ -21,8 +21,13 @@ class IDatabasePoolConnection(ABC):
 
 class IDatabaseQuery(ABC):
     @abstractmethod
-    async def query(self, input_data: Any) -> Any:
+    async def query(self, input_data: Any) -> None:
         """Function used to query data from database"""
+        raise NotImplementedError
+
+    @abstractmethod
+    async def fetchall(self) -> Any:
+        """Function used to fetch results from the cursor"""
         raise NotImplementedError
 
 
@@ -33,8 +38,8 @@ class IDatabaseTransaction(IDatabaseQuery):
         raise NotImplementedError
 
     @abstractmethod
-    async def close_trnsaction(self) -> None:
-        """Function used to close the transaction to database"""
+    async def release(self) -> None:
+        """Function used to release client and return it to pool"""
         raise NotImplementedError
 
     @abstractmethod
@@ -54,5 +59,5 @@ class IDatabaseTransaction(IDatabaseQuery):
 
     @abstractmethod
     async def close(self) -> None:
-        """Function used to close transaction and make connection available for other calls"""
+        """Function used to close pool connection"""
         raise NotImplementedError

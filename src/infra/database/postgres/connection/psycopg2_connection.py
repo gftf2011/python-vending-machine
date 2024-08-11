@@ -1,6 +1,6 @@
 from typing import Self, Any
 
-from psycopg2 import pool
+from psycopg2 import pool, connect
 
 from src.services.contracts.database.base import IDatabasePoolConnection
 
@@ -69,6 +69,7 @@ class Psycopg2PoolConnection(IDatabasePoolConnection):
 
     async def disconnect(self) -> None:
         Psycopg2PoolConnection._pool.closeall()
+        Psycopg2PoolConnection._pool = None
 
     async def get_pool(self) -> pool.ThreadedConnectionPool:
         return Psycopg2PoolConnection._pool

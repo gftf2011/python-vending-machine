@@ -30,7 +30,7 @@ def container():
     postgres.stop(force=True, delete_volume=True)
 
 
-class Test_Asyncpg_Pool_Connection:
+class Test_Psycopg2_Pool_Connection:
     @pytest.fixture(autouse=True)
     def reset_instances(self):
         Psycopg2PoolConnection.reset_instance()
