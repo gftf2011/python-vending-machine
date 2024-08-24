@@ -36,9 +36,7 @@ class Test_Machine_Service_Choose_Product:
     async def test_should_raise_exception_if_machine_is_not_registered(self):
         id_value: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(UnregisteredMachineException):
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(None)], [], []
-            )
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(None)], [], [])
             service = MachineService(machine_repo)
             input_dto = ChooseProductInputDTO("00", id_value)
             await service.choose_product(input_dto)
@@ -53,12 +51,8 @@ class Test_Machine_Service_Choose_Product:
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                id_value, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products
-            )
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], [], []
-            )
+            machine = MachineEntity.create(id_value, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products)
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             service = MachineService(machine_repo)
             input_dto = ChooseProductInputDTO("00", id_value)
             await service.choose_product(input_dto)
@@ -74,12 +68,8 @@ class Test_Machine_Service_Choose_Product:
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-            )
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], [], []
-            )
+            machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             service = MachineService(machine_repo)
             input_dto = ChooseProductInputDTO(product_code, machine_id)
             await service.choose_product(input_dto)
@@ -89,22 +79,14 @@ class Test_Machine_Service_Choose_Product:
         product_code: str = "00"
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(UnavailableProductException):
-            products = [
-                ProductEntity.create(
-                    "a9651193-6c44-4568-bdb6-883d703cbee5", "Hersheys", 0, "00", 0
-                )
-            ]
+            products = [ProductEntity.create("a9651193-6c44-4568-bdb6-883d703cbee5", "Hersheys", 0, "00", 0)]
             owner = OwnerEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cbff5",
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-            )
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], [], []
-            )
+            machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             service = MachineService(machine_repo)
             input_dto = ChooseProductInputDTO(product_code, machine_id)
             await service.choose_product(input_dto)
@@ -114,21 +96,11 @@ class Test_Machine_Service_Choose_Product:
         product_code: str = "00"
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
 
-        products = [
-            ProductEntity.create(
-                "a9651193-6c44-4568-bdb6-883d703cbee5", "Hersheys", 1, "00", 0
-            )
-        ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
-        machine = MachineEntity.create(
-            machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-        )
+        products = [ProductEntity.create("a9651193-6c44-4568-bdb6-883d703cbee5", "Hersheys", 1, "00", 0)]
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+        machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
 
-        machine_repo = StubMachineRepository(
-            [FindByIdResponseWithSuccessObject(machine)], [], []
-        )
+        machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
 
         service = MachineService(machine_repo)
         input_dto = ChooseProductInputDTO(product_code, machine_id)
@@ -145,9 +117,7 @@ class Test_Machine_Service_Add_Coins:
     async def test_should_raise_exception_if_machine_is_not_registered(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(UnregisteredMachineException):
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(None)], [], []
-            )
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(None)], [], [])
             service = MachineService(machine_repo)
             input_dto = AddCoinsInputDTO(machine_id, 0, 0, 0, 0, 0, 0, 0)
             await service.add_coins(input_dto)
@@ -162,12 +132,8 @@ class Test_Machine_Service_Add_Coins:
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products
-            )
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], [], []
-            )
+            machine = MachineEntity.create(machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products)
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             service = MachineService(machine_repo)
             input_dto = AddCoinsInputDTO(machine_id, 0, 0, 0, 0, 0, 0, 0)
             await service.add_coins(input_dto)
@@ -176,26 +142,16 @@ class Test_Machine_Service_Add_Coins:
     async def test_should_raise_exception_if_change_is_negative(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(IncorrectNegativeChangeException):
-            products = [
-                ProductEntity.create(
-                    "b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 1
-                )
-            ]
+            products = [ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 1)]
             owner = OwnerEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cbff5",
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-            )
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], [], []
-            )
+            machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             service = MachineService(machine_repo)
-            input_dto = AddCoinsInputDTO(
-                machine_id, products[0].id.value, 0, 0, 0, 0, 0, 0
-            )
+            input_dto = AddCoinsInputDTO(machine_id, products[0].id.value, 0, 0, 0, 0, 0, 0)
             await service.add_coins(input_dto)
 
     @pytest.mark.asyncio
@@ -204,26 +160,16 @@ class Test_Machine_Service_Add_Coins:
     ):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(ProductDoesNotExistException):
-            products = [
-                ProductEntity.create(
-                    "b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 150
-                )
-            ]
+            products = [ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 150)]
             owner = OwnerEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cbff5",
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-            )
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], [], []
-            )
+            machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             service = MachineService(machine_repo)
-            input_dto = AddCoinsInputDTO(
-                machine_id, "b9651752-6c44-4578-bdb6-883d703cbff3", 0, 0, 0, 0, 0, 2
-            )
+            input_dto = AddCoinsInputDTO(machine_id, "b9651752-6c44-4578-bdb6-883d703cbff3", 0, 0, 0, 0, 0, 2)
             await service.add_coins(input_dto)
 
     @pytest.mark.asyncio
@@ -232,26 +178,16 @@ class Test_Machine_Service_Add_Coins:
     ):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(UnavailableProductException):
-            products = [
-                ProductEntity.create(
-                    "b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 0, "00", 150
-                )
-            ]
+            products = [ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 0, "00", 150)]
             owner = OwnerEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cbff5",
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-            )
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], [], []
-            )
+            machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             service = MachineService(machine_repo)
-            input_dto = AddCoinsInputDTO(
-                machine_id, products[0].id.value, 0, 0, 0, 0, 1, 1
-            )
+            input_dto = AddCoinsInputDTO(machine_id, products[0].id.value, 0, 0, 0, 0, 1, 1)
             await service.add_coins(input_dto)
 
     @pytest.mark.asyncio
@@ -260,43 +196,25 @@ class Test_Machine_Service_Add_Coins:
     ):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(NoChangeAvailableException):
-            products = [
-                ProductEntity.create(
-                    "b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 150
-                )
-            ]
+            products = [ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 150)]
             owner = OwnerEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cbff5",
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-            )
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], [], []
-            )
+            machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             service = MachineService(machine_repo)
-            input_dto = AddCoinsInputDTO(
-                machine_id, products[0].id.value, 0, 0, 0, 0, 0, 2
-            )
+            input_dto = AddCoinsInputDTO(machine_id, products[0].id.value, 0, 0, 0, 0, 0, 2)
             await service.add_coins(input_dto)
 
     @pytest.mark.asyncio
     async def test_should_return_no_change_when_change_is_0(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
 
-        products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 100
-            )
-        ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
-        machine = MachineEntity.create(
-            machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-        )
+        products = [ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 100)]
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+        machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
 
         machine_repo = StubMachineRepository(
             [FindByIdResponseWithSuccessObject(machine)],
@@ -327,17 +245,9 @@ class Test_Machine_Service_Add_Coins:
     async def test_should_return_change(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
 
-        products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 100
-            )
-        ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
-        machine = MachineEntity.create(
-            machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-        )
+        products = [ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff4", "Hersheys", 1, "00", 100)]
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+        machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
 
         machine_repo = StubMachineRepository(
             [FindByIdResponseWithSuccessObject(machine)],
@@ -370,9 +280,7 @@ class Test_Machine_Service_Allow_Dispense:
     async def test_should_raise_exception_if_machine_is_not_registered(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(UnregisteredMachineException):
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(None)], [], []
-            )
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(None)], [], [])
             service = MachineService(machine_repo)
             input_dto = AllowDispenseInputDTO(machine_id)
             await service.allow_dispense(input_dto)
@@ -382,12 +290,8 @@ class Test_Machine_Service_Allow_Dispense:
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
 
         products = []
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
-        machine = MachineEntity.create(
-            machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+        machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
 
         machine_repo = StubMachineRepository(
             [FindByIdResponseWithSuccessObject(machine)],
@@ -409,9 +313,7 @@ class Test_Machine_Service_Deliver_Product:
         product_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
         product_qty: int = 1
         with pytest.raises(UnregisteredMachineException):
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(None)], [], []
-            )
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(None)], [], [])
             service = MachineService(machine_repo)
             input_dto = DeliverProductInputDTO(machine_id, product_id, product_qty)
             await service.deliver_product(input_dto)
@@ -427,13 +329,9 @@ class Test_Machine_Service_Deliver_Product:
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-            )
+            machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
 
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], [], []
-            )
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             service = MachineService(machine_repo)
             input_dto = DeliverProductInputDTO(machine_id, product_id, 0)
             await service.deliver_product(input_dto)
@@ -450,13 +348,9 @@ class Test_Machine_Service_Deliver_Product:
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products
-            )
+            machine = MachineEntity.create(machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products)
 
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], [], []
-            )
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             service = MachineService(machine_repo)
             input_dto = DeliverProductInputDTO(machine_id, product_id_2, 0)
             await service.deliver_product(input_dto)
@@ -474,13 +368,9 @@ class Test_Machine_Service_Deliver_Product:
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products
-            )
+            machine = MachineEntity.create(machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products)
 
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(machine)], [], []
-            )
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             service = MachineService(machine_repo)
             input_dto = DeliverProductInputDTO(machine_id, product_id, 1)
             await service.deliver_product(input_dto)
@@ -498,9 +388,7 @@ class Test_Machine_Service_Deliver_Product:
             "Sebastião Maia",
             "test@mail.com",
         )
-        machine = MachineEntity.create(
-            machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products
-        )
+        machine = MachineEntity.create(machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products)
 
         machine_repo = StubMachineRepository(
             [FindByIdResponseWithSuccessObject(machine)],
@@ -522,9 +410,7 @@ class Test_Machine_Service_Finish_Dispense:
     async def test_should_raise_exception_if_machine_is_not_registered(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         with pytest.raises(UnregisteredMachineException):
-            machine_repo = StubMachineRepository(
-                [FindByIdResponseWithSuccessObject(None)], [], []
-            )
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(None)], [], [])
             service = MachineService(machine_repo)
             input_dto = FinishDispenseInputDTO(machine_id)
             await service.finish_dispense(input_dto)
@@ -534,12 +420,8 @@ class Test_Machine_Service_Finish_Dispense:
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
 
         products = []
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
-        machine = MachineEntity.create(
-            machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
+        machine = MachineEntity.create(machine_id, owner, MachineState.DISPENSING, 0, 0, 0, 0, 0, 0, products)
 
         machine_repo = StubMachineRepository(
             [FindByIdResponseWithSuccessObject(machine)],

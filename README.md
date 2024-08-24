@@ -2,8 +2,8 @@
 
 ### install dependencies
 
-pip install -r ./requirements.txt
+poetry install
 
-### Active `local` virtual environment
+### Run Tests
 
-source local/bin/activate
+poetry run pytest
