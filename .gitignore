@@ -163,3 +163,7 @@ cython_debug/
 
 # Poetry lock
 poetry.lock
+
+# docker-compose
+docker-compose.yml
+!docker/test/docker-compose.yml

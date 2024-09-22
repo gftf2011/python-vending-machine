@@ -5,6 +5,10 @@ description = "A Low Level Design for a vending machine system using python and 
 authors = ["gftf2011 <gftf2011@gmail.com>"]
 readme = "README.md"
 license = "MIT"
+package-mode = false
+
+[tool.poetry.scripts]
+test = 'test:__main__'
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -16,6 +20,7 @@ pytest = "^8.3.2"
 pytest-asyncio = "^0.24.0"
 black = "^24.8.0"
 testcontainers = "^4.8.0"
+pylint = "^3.2.7"
 
 [build-system]
 requires = ["poetry-core"]

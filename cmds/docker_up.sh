@@ -1,0 +1,1 @@
+rm -rf docker-compose.yml && cat docker/test/docker-compose.yml >> docker-compose.yml && docker-compose up -d --remove-orphans

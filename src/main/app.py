@@ -23,4 +23,3 @@
 
 # while  product != "11" and product != "12" and product != "13" and product != "21" and product != "22" and product != "23" and product != "31" and product != "32" and product != "33":
 #     product = input("Choose your product: ")
-

@@ -3,30 +3,24 @@
 set -e
 
 # Create Users
-psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTGRES_ROOT_PASSWORD" -c "CREATE USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD' VALID UNTIL '2030-01-01' CONNECTION LIMIT $MAX_CONNECTIONS;"
+psql $POSTGRES_DB -c "CREATE USER $POSTGRES_APP_USER WITH PASSWORD '$POSTGRES_APP_PASSWORD' VALID UNTIL '2030-01-01' CONNECTION LIMIT $MAX_CONNECTIONS;"
 
 # Create Extentions
-psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTGRES_ROOT_PASSWORD" -c "
+psql $POSTGRES_DB -c "
     CREATE SCHEMA partman;
-    CREATE SCHEMA cron;
     CREATE EXTENSION pg_partman WITH SCHEMA partman;
-    CREATE EXTENSION pg_cron WITH SCHEMA cron;
-"
-
-# Create Roles
-psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTGRES_ROOT_PASSWORD" -c "
-    CREATE ROLE app_user_role;
+    CREATE EXTENSION pg_cron SCHEMA pg_catalog;
 "
 
 # Create Types
-psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTGRES_ROOT_PASSWORD" -c "
+psql $POSTGRES_DB -c "
     CREATE TYPE machine_state AS ENUM ('READY', 'DISPENSING');
     CREATE TYPE order_status AS ENUM ('PENDING', 'DELIVERED', 'CANCELED');
     CREATE TYPE payment_types AS ENUM ('CASH');
 "
 
 # Create Schemas
-psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTGRES_ROOT_PASSWORD" -c "
+psql $POSTGRES_DB -c "
     CREATE SCHEMA IF NOT EXISTS machines_schema;
     CREATE SCHEMA IF NOT EXISTS orders_schema;
     CREATE SCHEMA IF NOT EXISTS payments_schema;
@@ -34,7 +28,7 @@ psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTG
 "
 
 # Create Tables
-psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTGRES_ROOT_PASSWORD" -c "
+psql $POSTGRES_DB -c "
     CREATE TABLE IF NOT EXISTS products_schema.products(
         id UUID UNIQUE NOT NULL,
         name VARCHAR(320) NOT NULL,
@@ -67,7 +61,8 @@ psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTG
         product_id UUID NOT NULL,
         product_qty INT NOT NULL,
         code VARCHAR(2) NOT NULL,
-        CONSTRAINT fk_product_id FOREIGN KEY(product_id) REFERENCES products_schema.products(id) ON UPDATE CASCADE ON DELETE CASCADE
+        CONSTRAINT fk_product_id FOREIGN KEY(product_id) REFERENCES products_schema.products(id) ON UPDATE CASCADE ON DELETE CASCADE,
+        CONSTRAINT fk_machine_id FOREIGN KEY(machine_id) REFERENCES machines_schema.machines(id) ON UPDATE CASCADE ON DELETE CASCADE
     ) PARTITION BY LIST (machine_id);
 
     CREATE TABLE IF NOT EXISTS orders_schema.orders(
@@ -113,7 +108,7 @@ psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTG
 "
 
 # Create Indexes
-psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTGRES_ROOT_PASSWORD" -c "
+psql $POSTGRES_DB -c "
     CREATE UNIQUE INDEX idx_btree_products_id ON products_schema.products USING BTREE (id);
     CREATE INDEX idx_hash_machines_id ON machines_schema.machines USING HASH (id);
     CREATE INDEX idx_hash_owners_id ON machines_schema.owners USING HASH (id);
@@ -125,71 +120,75 @@ psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTG
 "
 
 # Configure Patitioning
-psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTGRES_ROOT_PASSWORD" -c "
+psql $POSTGRES_DB -c "
     SELECT partman.create_parent(
-        p_parent_table => 'orders_schema.orders',
-        p_control => 'created_at',
-        p_type => 'native',
-        p_interval=> 'monthly',
-        p_start_partition => date_trunc('day', current_timestamp),
-        p_retention => '12 months',
-        p_premake => 3
+        p_parent_table := 'orders_schema.orders'
+        , p_control := 'created_at'
+        , p_interval := '1 month'
+        , p_type := 'range'
+        , p_premake := 3
+        , p_start_partition := date_trunc('day', CURRENT_TIMESTAMP)::TEXT
+        , p_template_table := 'orders_schema.orders'
     );
 
     SELECT partman.create_parent(
-        p_parent_table => 'orders_schema.order_items',
-        p_control => 'created_at',
-        p_type => 'native',
-        p_interval=> 'monthly',
-        p_start_partition => date_trunc('day', current_timestamp),
-        p_retention => '12 months',
-        p_premake => 3
+        p_parent_table := 'orders_schema.order_items'
+        , p_control := 'created_at'
+        , p_interval := '1 month'
+        , p_type := 'range'
+        , p_premake => 3
+        , p_start_partition := date_trunc('day', CURRENT_TIMESTAMP)::TEXT
+        , p_template_table := 'orders_schema.order_items'
     );
 
     SELECT partman.create_parent(
-        p_parent_table => 'payments_schema.payments',
-        p_control => 'payment_date',
-        p_type => 'native',
-        p_interval=> 'monthly',
-        p_start_partition => date_trunc('day', current_timestamp),
-        p_retention => '12 months',
-        p_premake => 3
+        p_parent_table => 'payments_schema.payments'
+        , p_control => 'payment_date'
+        , p_interval => '1 month'
+        , p_type => 'range'
+        , p_premake => 3
+        , p_start_partition := date_trunc('day', CURRENT_TIMESTAMP)::TEXT
+        , p_template_table := 'payments_schema.payments'
     );
 
     SELECT partman.create_parent(
-        p_parent_table => 'payments_schema.cash_payments',
-        p_control => 'payment_date',
-        p_type => 'native',
-        p_interval=> 'monthly',
-        p_start_partition => date_trunc('day', current_timestamp),
-        p_retention => '12 months',
-        p_premake => 3
+        p_parent_table => 'payments_schema.cash_payments'
+        , p_control => 'payment_date'
+        , p_interval => '1 month'
+        , p_type => 'range'
+        , p_premake => 3
+        , p_start_partition := date_trunc('day', CURRENT_TIMESTAMP)::TEXT
+        , p_template_table := 'payments_schema.cash_payments'
     );
 
     UPDATE partman.part_config
     SET infinite_time_partitions = true,
         retention_keep_table = true
     WHERE parent_table = 'orders_schema.orders' OR
-          parent_table = 'orders_schema.order_items' OR
-          parent_table = 'payments_schema.payments' OR
-          parent_table = 'payments_schema.cash_payments';
+        parent_table = 'orders_schema.order_items' OR
+        parent_table = 'payments_schema.payments' OR
+        parent_table = 'payments_schema.cash_payments';
 "
 
 # Run Cron Jobs
-psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTGRES_ROOT_PASSWORD" -c "
-    SELECT cron.schedule('orders_partition_maintainer_job', '0 0 $ * *', $$CALL partman.run_maintenance_proc(p_analyze := false, p_config := 'orders_schema.orders')$$);
-    SELECT cron.schedule('order_items_partition_maintainer_job', '0 0 $ * *', $$CALL partman.run_maintenance_proc(p_analyze := false, p_config := 'orders_schema.order_items')$$);
-    SELECT cron.schedule('payments_partition_maintainer_job', '0 0 $ * *', $$CALL partman.run_maintenance_proc(p_analyze := false, p_config := 'payments_schema.payments')$$);
-    SELECT cron.schedule('cash_payments_partition_maintainer_job', '0 0 $ * *', $$CALL partman.run_maintenance_proc(p_analyze := false, p_config := 'payments_schema.cash_payments')$$);
+psql $POSTGRES_DB -c "
+    SELECT cron.schedule('orders_partition_maintainer_job', '0 0 $ * *', 'SELECT partman.run_maintenance(p_parent_table := ''orders_schema.orders'', p_analyze := false)');
+    SELECT cron.schedule('order_items_partition_maintainer_job', '0 0 $ * *', 'SELECT partman.run_maintenance(p_parent_table := ''orders_schema.order_items'', p_analyze := false)');
+    SELECT cron.schedule('payments_partition_maintainer_job', '0 0 $ * *', 'SELECT partman.run_maintenance(p_parent_table := ''payments_schema.payments'', p_analyze := false)');
+    SELECT cron.schedule('cash_payments_partition_maintainer_job', '0 0 $ * *', 'SELECT partman.run_maintenance(p_parent_table := ''payments_schema.cash_payments'', p_analyze := false)');
+    SELECT cron.schedule('clean_jobs_log_job', '0 0 * * *', 'DELETE FROM cron.job_run_details WHERE end_time < now() - interval ''7 days''');
+"
 
-    SELECT cron.schedule('clean_jobs_log_job', '0 0 * * *', $$DELETE FROM cron.job_run_details WHERE end_time < now() - interval '7 days'$$);
+# Insert Products
+psql $POSTGRES_DB -c "
+    INSERT INTO products_schema.products (id, name, unit_price) VALUES ('223e4567-e89b-12d3-a456-426614174003', 'Pepsi', 150);
+    INSERT INTO products_schema.products (id, name, unit_price) VALUES ('223e4567-e89b-12d3-a456-426614174004', 'Butterfinger', 50);
+    INSERT INTO products_schema.products (id, name, unit_price) VALUES ('223e4567-e89b-12d3-a456-426614174005', 'Hershey''s', 75);
+    INSERT INTO products_schema.products (id, name, unit_price) VALUES ('223e4567-e89b-12d3-a456-426614174006', 'Twix Candy Bars', 95);
 "
 
 # Super User Functions
-# ----
-# TODO: Use function created to insert the values
-# ----
-psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTGRES_ROOT_PASSWORD" -c "
+psql $POSTGRES_DB -c "
     CREATE TYPE product_type AS (
         id UUID,
         name VARCHAR(320),
@@ -215,7 +214,7 @@ psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTG
     );
 
     CREATE OR REPLACE FUNCTION fn_create_machine_partition(machine machine_type, owner owner_type, products product_type[])
-    RETURNS VOID AS $$
+    RETURNS VOID AS \$\$
     DECLARE
         i INT;
         owner_row machines_schema.owners;
@@ -226,35 +225,36 @@ psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTG
         new_partition_name TEXT;
     BEGIN
         IF array_length(products, 1) IS NULL THEN
-            RAISE NOTICE 'no products to insert';
+            RAISE EXCEPTION 'no products to insert';
         END IF;
 
-        IF array_length(products, 1) > 99 THEN
-            RAISE NOTICE 'too many products to register';
-        END IF;
-
-        IF owner IS NULL THEN
-            RAISE NOTICE 'no owner specified';
+        IF array_length(products, 1) > 100 THEN
+            RAISE EXCEPTION 'too many products to register';
         END IF;
 
         IF owner IS NULL THEN
-            RAISE NOTICE 'no machine specified';
+            RAISE EXCEPTION 'no owner specified';
+        END IF;
+
+        IF machine IS NULL THEN
+            RAISE EXCEPTION 'no machine specified';
         END IF;
 
         SELECT * INTO owner_row FROM machines_schema.owners WHERE id = owner.id LIMIT 1;
 
-        IF EXISTS owner_row THEN
-            RAISE NOTICE 'owner with id: % - already exists', owner.id;
-        END IF;
-
         SELECT * INTO machine_row FROM machines_schema.machines WHERE id = machine.id LIMIT 1;
 
         CASE
-            WHEN EXISTS machine_row THEN
-                RAISE NOTICE 'machine with id: % - already exists', machine.id;
+            WHEN machine_row.id IS NOT NULL THEN
+                RAISE EXCEPTION 'machine with id: % - already exists', machine.id;
             ELSE
-                INSERT INTO machines_schema.owners (id, full_name, email) VALUES (owner.id, owner.full_name, owner.email);
-                INSERT INTO machines_schema.machines VALUES (
+                SELECT * INTO owner_row FROM machines_schema.owners WHERE id = owner.id LIMIT 1;
+
+                IF owner_row.id IS NULL THEN
+                    INSERT INTO machines_schema.owners (id, full_name, email) VALUES (owner.id, owner.full_name, owner.email);
+                END IF;
+
+                INSERT INTO machines_schema.machines (
                     id,
                     owner_id,
                     state,
@@ -279,22 +279,14 @@ psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTG
                 schema_name := 'machines_schema';
                 table_name := 'machine_products';
                 partition_name := schema_name || '.' || table_name;
-                new_partition_name := schema_name || '.' || table_name || '_' || machine.id;
+                new_partition_name := schema_name || '.' || table_name || '_' || REPLACE(machine.id::TEXT, '-', '');
 
-                IF NOT EXISTS (
-                    SELECT 1
-                    FROM pg_class cls
-                    JOIN pg_namespace name ON name.oid = cls.relnamespace
-                    WHERE cls.relname = table_name
-                    AND name.nspname = schema_name
-                ) THEN
-                    EXECUTE format(
-                        'CREATE TABLE %s PARTITION OF %s FOR VALUES IN (%s)',
-                        new_partition_name, partition_name, machine.id
-                    );
-                END IF;
+                EXECUTE format(
+                    'CREATE TABLE %s PARTITION OF %s FOR VALUES IN (''%s'')',
+                    new_partition_name, partition_name, machine.id
+                );
 
-                FOR i IN 0..array_length(products, 1) LOOP
+                FOR i IN 1..array_length(products, 1) LOOP
                     INSERT INTO machines_schema.machine_products (
                         machine_id,
                         product_id,
@@ -309,22 +301,81 @@ psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTG
                 END LOOP;
         END CASE;
     END;
-    $$ LANGUAGE plpgsql;
+    \$\$ LANGUAGE plpgsql;
+"
+
+# Use Function
+psql $POSTGRES_DB -c "
+    SELECT fn_create_machine_partition(
+        ROW(
+            '223e4567-e89b-12d3-a456-426614174000'::UUID,
+            'READY'::machine_state,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        )::machine_type,
+        ROW(
+            '223e4567-e89b-12d3-a456-426614174001'::UUID,
+            'Jane Doe',
+            'jane.doe@example.com'
+        )::owner_type,
+        ARRAY[
+            ROW(
+                '223e4567-e89b-12d3-a456-426614174003'::UUID,
+                'Pepsi',
+                150,
+                10
+            )::product_type,
+            ROW(
+                '223e4567-e89b-12d3-a456-426614174004'::UUID,
+                'Butterfinger',
+                50,
+                2
+            )::product_type
+        ]::product_type[]
+    );
+
+    SELECT fn_create_machine_partition(
+        ROW(
+            '223e4567-e89b-12d3-a456-426614174002'::UUID,
+            'READY'::machine_state,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+        )::machine_type,
+        ROW(
+            '223e4567-e89b-12d3-a456-426614174001'::UUID,
+            'Jane Doe',
+            'jane.doe@example.com'
+        )::owner_type,
+        ARRAY[
+            ROW(
+                '223e4567-e89b-12d3-a456-426614174003'::UUID,
+                'Pepsi',
+                150,
+                5
+            )::product_type
+        ]::product_type[]
+    );
 "
 
 # Grant Permissions
-psql --dbname="$POSTGRES_DB" --username="$POSTGRES_ROOT_USER" --password="$POSTGRES_ROOT_PASSWORD" -c "
-    GRANT CONNECT ON DATABASE $DB TO app_user_role;
+psql $POSTGRES_DB -c "
+    GRANT CONNECT ON DATABASE $POSTGRES_DB TO $POSTGRES_APP_USER;
 
-    GRANT USAGE ON SCHEMA machines_schema TO app_user_role;
-    GRANT USAGE ON SCHEMA orders_schema TO app_user_role;
-    GRANT USAGE ON SCHEMA payments_schema TO app_user_role;
-    GRANT USAGE ON SCHEMA products_schema TO app_user_role;
+    GRANT USAGE ON SCHEMA machines_schema TO $POSTGRES_APP_USER;
+    GRANT USAGE ON SCHEMA orders_schema TO $POSTGRES_APP_USER;
+    GRANT USAGE ON SCHEMA payments_schema TO $POSTGRES_APP_USER;
+    GRANT USAGE ON SCHEMA products_schema TO $POSTGRES_APP_USER;
 
-    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA machines_schema TO app_user_role;
-    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA orders_schema TO app_user_role;
-    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA payments_schema TO app_user_role;
-    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA products_schema TO app_user_role;
-
-    GRANT app_user_role TO $POSTGRES_USER;
+    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA machines_schema TO $POSTGRES_APP_USER;
+    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA orders_schema TO $POSTGRES_APP_USER;
+    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA payments_schema TO $POSTGRES_APP_USER;
+    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA products_schema TO $POSTGRES_APP_USER;
 "
