@@ -1,6 +1,6 @@
 from typing import Self, Any
 
-from psycopg2 import pool, connect
+from psycopg2 import pool
 
 from src.services.contracts.database.base import IDatabasePoolConnection
 
@@ -30,9 +30,7 @@ class Psycopg2PoolConnection(IDatabasePoolConnection):
     _instance: Self = None
 
     def __new__(cls, *args, **kwargs):
-        raise Exception(
-            "Use the 'get_instance' method to create an instance of this class."
-        )
+        raise Exception("Use the 'get_instance' method to create an instance of this class.")
 
     @classmethod
     def get_instance(cls) -> Self:
