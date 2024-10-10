@@ -459,71 +459,71 @@ class Test_Psycopg2_Machine_Repository:
         assert result.order_items[0].product.qty == order.order_items[0].product.qty
         assert result.order_items[0].product.unit_price == order.order_items[0].product.unit_price
 
-    # @pytest.mark.asyncio
-    # async def test_should_save_new_order(self, transaction):
-    #     await self.open_transaction(transaction)
-    #     await self.create_db(transaction)
+    @pytest.mark.asyncio
+    async def test_should_save_new_order(self, transaction):
+        await self.open_transaction(transaction)
+        await self.create_db(transaction)
 
-    #     owner_id: str = "b9651752-6c44-4578-bdb6-883d703cbff5"
-    #     machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
-    #     order_created_at: datetime = datetime(1970, 1, 1)
+        owner_id: str = "b9651752-6c44-4578-bdb6-883d703cbff5"
+        machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
+        order_created_at: datetime = datetime(1970, 1, 1)
 
-    #     products = [
-    #         ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "01", 0),
-    #         ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff6", "Twix", 1, "01", 0),
-    #     ]
-    #     owner = OwnerEntity.create(owner_id, "Sebastião Maia", "test@mail.com")
-    #     machine = MachineEntity.create(
-    #         machine_id,
-    #         owner,
-    #         MachineState.READY,
-    #         0,
-    #         0,
-    #         0,
-    #         0,
-    #         0,
-    #         0,
-    #         products,
-    #     )
+        products = [
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "01", 0),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff6", "Twix", 1, "01", 0),
+        ]
+        owner = OwnerEntity.create(owner_id, "Sebastião Maia", "test@mail.com")
+        machine = MachineEntity.create(
+            machine_id,
+            owner,
+            MachineState.READY,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            products,
+        )
 
-    #     order_items = [OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", products[0], order_created_at)]
-    #     order = OrderEntity.create(
-    #         "f3331752-6c11-4578-adb7-331d703cb446",
-    #         machine_id,
-    #         order_items,
-    #         OrderStatus.PENDING,
-    #         order_created_at,
-    #         order_created_at,
-    #     )
+        order_items = [OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", 1, products[0], order_created_at)]
+        order = OrderEntity.create(
+            "f3331752-6c11-4578-adb7-331d703cb446",
+            machine_id,
+            order_items,
+            OrderStatus.PENDING,
+            order_created_at,
+            order_created_at,
+        )
 
-    #     await self.create_machine(transaction, machine)
-    #     await self.create_product(transaction, products[0])
-    #     await self.create_product(transaction, products[1])
-    #     await self.link_product_to_machine(transaction, products[0], machine_id)
-    #     await self.link_product_to_machine(transaction, products[1], machine_id)
+        await self.create_machine(transaction, machine)
+        await self.create_product(transaction, products[0])
+        await self.create_product(transaction, products[1])
+        await self.link_product_to_machine(transaction, products[0], machine_id)
+        await self.link_product_to_machine(transaction, products[1], machine_id)
 
-    #     repo = Psycopg2OrderRepository(transaction)
-    #     await repo.save(order)
-    #     result = await repo.find_by_id_and_machine_id(order.id, machine.id, order_created_at)
+        repo = Psycopg2OrderRepository(transaction)
+        await repo.save(order)
+        result = await repo.find_by_id_and_machine_id(order.id, machine.id, order_created_at)
 
-    #     await self.commit_transaction(transaction)
+        await self.commit_transaction(transaction)
 
-    #     assert result.id.value == "f3331752-6c11-4578-adb7-331d703cb446"
-    #     assert result.machine_id.value == machine_id
-    #     assert result.order_status == OrderStatus.PENDING
-    #     assert result.created_at.isoformat() == order_created_at.isoformat()
-    #     assert result.updated_at.isoformat() == order_created_at.isoformat()
-    #     assert result.total_amount == order.total_amount
+        assert result.id.value == "f3331752-6c11-4578-adb7-331d703cb446"
+        assert result.machine_id.value == machine_id
+        assert result.order_status == OrderStatus.PENDING
+        assert result.created_at.isoformat() == order_created_at.isoformat()
+        assert result.updated_at.isoformat() == order_created_at.isoformat()
+        assert result.total_amount == order.total_amount
 
-    #     assert len(result.order_items) == 1
+        assert len(result.order_items) == 1
 
-    #     assert result.order_items[0].id.value == order.order_items[0].id.value
-    #     assert result.order_items[0].created_at.isoformat() == order.order_items[0].created_at.isoformat()
-    #     assert result.order_items[0].qty == order.order_items[0].qty
-    #     assert result.order_items[0].price == order.order_items[0].price
+        assert result.order_items[0].id.value == order.order_items[0].id.value
+        assert result.order_items[0].created_at.isoformat() == order.order_items[0].created_at.isoformat()
+        assert result.order_items[0].qty == order.order_items[0].qty
+        assert result.order_items[0].price == order.order_items[0].price
 
-    #     assert result.order_items[0].product.id.value == order.order_items[0].product.id.value
-    #     assert result.order_items[0].product.code == order.order_items[0].product.code
-    #     assert result.order_items[0].product.name == order.order_items[0].product.name
-    #     assert result.order_items[0].product.qty == 0
-    #     assert result.order_items[0].product.unit_price == order.order_items[0].product.unit_price
+        assert result.order_items[0].product.id.value == order.order_items[0].product.id.value
+        assert result.order_items[0].product.code == order.order_items[0].product.code
+        assert result.order_items[0].product.name == order.order_items[0].product.name
+        assert result.order_items[0].product.qty == 0
+        assert result.order_items[0].product.unit_price == order.order_items[0].product.unit_price

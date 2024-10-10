@@ -146,65 +146,64 @@ class Psycopg2OrderRepository(IOrderRepository):
         return order
 
     async def save(self, entity: OrderEntity) -> None:
-        pass
-        # order_query_input: QueryInput = {
-        #     "text": """INSERT INTO orders_schema.orders (
-        #         id,
-        #         machine_id,
-        #         status,
-        #         total_amount,
-        #         created_at,
-        #         updated_at
-        #     ) VALUES (%s, %s, %s, %s, %s, %s);""",
-        #     "values": (
-        #         entity.id.value,
-        #         entity.machine_id.value,
-        #         entity.order_status.value,
-        #         entity.total_amount,
-        #         entity.created_at.isoformat(timespec="seconds"),
-        #         entity.updated_at.isoformat(timespec="seconds"),
-        #     ),
-        # }
+        order_query_input: QueryInput = {
+            "text": """INSERT INTO orders_schema.orders (
+                id,
+                machine_id,
+                status,
+                total_amount,
+                created_at,
+                updated_at
+            ) VALUES (%s, %s, %s, %s, %s, %s);""",
+            "values": (
+                entity.id.value,
+                entity.machine_id.value,
+                entity.order_status.value,
+                entity.total_amount,
+                entity.created_at.isoformat(timespec="seconds"),
+                entity.updated_at.isoformat(timespec="seconds"),
+            ),
+        }
 
-        # await self._query_runner.query(order_query_input)
+        await self._query_runner.query(order_query_input)
 
-        # for order_item in entity.order_items:
-        #     counter = 0
-        #     while counter < order_item.qty:
-        #         order_item.product.reduce_qty()
-        #         counter += 1
-        #     order_item_query_input: QueryInput = {
-        #         "text": """INSERT INTO orders_schema.order_items (
-        #             id,
-        #             order_id,
-        #             product_id,
-        #             price,
-        #             qty,
-        #             created_at
-        #         ) VALUES (%s, %s, %s, %s, %s, %s);""",
-        #         "values": (
-        #             order_item.id.value,
-        #             entity.id.value,
-        #             order_item.product.id.value,
-        #             order_item.product.unit_price,
-        #             order_item.qty,
-        #             entity.created_at.isoformat(timespec="seconds"),
-        #         ),
-        #     }
-        #     machine_products_query_input: QueryInput = {
-        #         "text": """
-        #             UPDATE machines_schema.machine_products
-        #             SET product_qty = %s
-        #             WHERE machine_id = %s
-        #             AND product_id = %s;""",
-        #         "values": (
-        #             order_item.product.qty,
-        #             entity.machine_id.value,
-        #             order_item.product.id.value,
-        #         ),
-        #     }
-        #     await self._query_runner.query(order_item_query_input)
-        #     await self._query_runner.query(machine_products_query_input)
+        for order_item in entity.order_items:
+            counter = 0
+            while counter < order_item.qty:
+                order_item.product.reduce_qty()
+                counter += 1
+            order_item_query_input: QueryInput = {
+                "text": """INSERT INTO orders_schema.order_items (
+                    id,
+                    order_id,
+                    product_id,
+                    price,
+                    qty,
+                    created_at
+                ) VALUES (%s, %s, %s, %s, %s, %s);""",
+                "values": (
+                    order_item.id.value,
+                    entity.id.value,
+                    order_item.product.id.value,
+                    order_item.product.unit_price,
+                    order_item.qty,
+                    entity.created_at.isoformat(timespec="seconds"),
+                ),
+            }
+            machine_products_query_input: QueryInput = {
+                "text": """
+                    UPDATE machines_schema.machine_products
+                    SET product_qty = %s
+                    WHERE machine_id = %s
+                    AND product_id = %s;""",
+                "values": (
+                    order_item.product.qty,
+                    entity.machine_id.value,
+                    order_item.product.id.value,
+                ),
+            }
+            await self._query_runner.query(order_item_query_input)
+            await self._query_runner.query(machine_products_query_input)
 
     async def update(self, entity: OrderEntity) -> None:
         pass

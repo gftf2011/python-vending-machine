@@ -53,7 +53,6 @@ class OrderService(IOrderService):
         if product_found.qty < input_dto.product_qty:
             raise UnavailableProductException(product_found.id.value)
 
-        # Create a Product Repository to get products quantity in stock in the database
         product_order: ProductEntity = ProductEntity.create(
             product_found.id.value,
             product_found.name,
