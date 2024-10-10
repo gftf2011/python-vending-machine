@@ -206,25 +206,42 @@ class Psycopg2OrderRepository(IOrderRepository):
             await self._query_runner.query(machine_products_query_input)
 
     async def update(self, entity: OrderEntity) -> None:
-        pass
-        # timerange_month_tuple = self._get_month_range(entity.created_at)
-        # order_query_input: QueryInput = {
-        #     "text": """
-        #         UPDATE orders_schema.orders
-        #         SET status = %s, updated_at = %s
-        #         WHERE machine_id = %s
-        #         AND id = %s
-        #         AND created_at BETWEEN %s AND %s;""",
-        #     "values": (
-        #         entity.order_status.value,
-        #         entity.updated_at.isoformat(timespec="seconds"),
-        #         entity.machine_id.value,
-        #         entity.id.value,
-        #         timerange_month_tuple[0],
-        #         timerange_month_tuple[1],
-        #     ),
-        # }
+        timerange_month_tuple = self._get_month_range(entity.created_at)
+        order_query_input: QueryInput = {
+            "text": """
+                UPDATE orders_schema.orders
+                SET status = %s, updated_at = %s
+                WHERE machine_id = %s
+                AND id = %s
+                AND created_at BETWEEN %s AND %s;""",
+            "values": (
+                entity.order_status.value,
+                entity.updated_at.isoformat(timespec="seconds"),
+                entity.machine_id.value,
+                entity.id.value,
+                timerange_month_tuple[0],
+                timerange_month_tuple[1],
+            ),
+        }
 
-        # if entity.order_status == OrderStatus.DELIVERED:
-        #     for order_item in entity.order_items:
-        #         order_item.product.reduce_qty()
+        await self._query_runner.query(order_query_input)
+
+        if entity.order_status == OrderStatus.CANCELED:
+            for order_item in entity.order_items:
+                counter = 0
+                while counter < order_item.qty:
+                    order_item.product.increase_qty()
+                    counter += 1
+                machine_products_query_input: QueryInput = {
+                    "text": """
+                        UPDATE machines_schema.machine_products
+                        SET product_qty = %s
+                        WHERE machine_id = %s
+                        AND product_id = %s;""",
+                    "values": (
+                        order_item.product.qty,
+                        entity.machine_id.value,
+                        order_item.product.id.value,
+                    ),
+                }
+                await self._query_runner.query(machine_products_query_input)
