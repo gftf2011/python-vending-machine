@@ -16,7 +16,7 @@ from src.services.exceptions.order_does_not_exist import OrderDoesNotExistExcept
 
 from src.infra.repositories.machine.stub_machine_repository import (
     StubMachineRepository,
-    FindByIdResponseWithSuccessObject as FindByIdMachineResponseWithSuccessObject,
+    FindByIdResponseWithSuccessObject,
 )
 from src.infra.repositories.machine.dummy_machine_repository import (
     DummyMachineRepository,
@@ -24,7 +24,7 @@ from src.infra.repositories.machine.dummy_machine_repository import (
 from src.infra.repositories.order.dummy_order_repository import DummyOrderRepository
 from src.infra.repositories.order.stub_order_repository import (
     UpdateResponseWithSuccessObject as UpdateOrderResponseWithSuccessObject,
-    FindByIdResponseWithSuccessObject as FindByIdOrderResponseWithSuccessObject,
+    FindByIdAndMachineIdResponseWithSuccessObject,
     StubOrderRepository,
 )
 
@@ -46,9 +46,7 @@ class Test_Order_Service_Create:
         product_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
         product_qty: int = 0
         with pytest.raises(UnregisteredMachineException):
-            machine_repo = StubMachineRepository(
-                [FindByIdMachineResponseWithSuccessObject(None)], [], []
-            )
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(None)], [], [])
             order_repo = DummyOrderRepository()
             service = OrderService(machine_repo, order_repo)
             input = CreateOrderInputDTO(machine_id, product_id, product_qty)
@@ -60,22 +58,14 @@ class Test_Order_Service_Create:
         product_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
         product_qty: int = 0
         with pytest.raises(ProductDoesNotExistException):
-            products = [
-                ProductEntity.create(
-                    "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4d", "Hersheys", 0, "01", 0
-                )
-            ]
+            products = [ProductEntity.create("43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4d", "Hersheys", 0, "01", 0)]
             owner = OwnerEntity.create(
                 "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4c",
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-            )
-            machine_repo = StubMachineRepository(
-                [FindByIdMachineResponseWithSuccessObject(machine)], [], []
-            )
+            machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             order_repo = DummyOrderRepository()
             service = OrderService(machine_repo, order_repo)
             input = CreateOrderInputDTO(machine_id, product_id, product_qty)
@@ -93,12 +83,8 @@ class Test_Order_Service_Create:
                 "Sebastião Maia",
                 "test@mail.com",
             )
-            machine = MachineEntity.create(
-                machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-            )
-            machine_repo = StubMachineRepository(
-                [FindByIdMachineResponseWithSuccessObject(machine)], [], []
-            )
+            machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
+            machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
             order_repo = DummyOrderRepository()
             service = OrderService(machine_repo, order_repo)
             input = CreateOrderInputDTO(machine_id, product_id, product_qty)
@@ -111,16 +97,10 @@ class Test_Order_Service_Create:
         product_qty: int = 1
 
         products = [ProductEntity.create(product_id, "Hersheys", 1, "01", 0)]
-        owner = OwnerEntity.create(
-            "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4c", "Sebastião Maia", "test@mail.com"
-        )
-        machine = MachineEntity.create(
-            machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products
-        )
+        owner = OwnerEntity.create("43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4c", "Sebastião Maia", "test@mail.com")
+        machine = MachineEntity.create(machine_id, owner, MachineState.READY, 0, 0, 0, 0, 0, 0, products)
 
-        machine_repo = StubMachineRepository(
-            [FindByIdMachineResponseWithSuccessObject(machine)], [], []
-        )
+        machine_repo = StubMachineRepository([FindByIdResponseWithSuccessObject(machine)], [], [])
         order_repo = DummyOrderRepository()
 
         service = OrderService(machine_repo, order_repo)
@@ -135,26 +115,19 @@ class Test_Order_Service_Deliver_Order:
     @pytest.mark.asyncio
     async def test_should_raise_exception_if_order_does_not_exists(self):
         order_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
+        machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
         with pytest.raises(OrderDoesNotExistException):
             machine_repo = DummyMachineRepository()
-            order_repo = StubOrderRepository(
-                [FindByIdOrderResponseWithSuccessObject(None)], [], []
-            )
+            order_repo = StubOrderRepository([FindByIdAndMachineIdResponseWithSuccessObject(None)], [], [])
             service = OrderService(machine_repo, order_repo)
-            input = DeliverOrderInputDTO(order_id)
+            input = DeliverOrderInputDTO(order_id, machine_id, datetime.now().isoformat(timespec="seconds"))
             await service.deliver_order(input)
 
     @pytest.mark.asyncio
     async def test_should_raise_exception_if_order_is_cancelled(self):
         machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
-        product: ProductEntity = ProductEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0
-        )
-        order_items = [
-            OrderItemEntity.create(
-                "f3331752-6c11-4578-adb7-331d703cb445", product, datetime(1970, 1, 1)
-            )
-        ]
+        product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0)
+        order_items = [OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", 1, product, datetime(1970, 1, 1))]
         order = OrderEntity.create(
             "f3331752-6c11-4578-adb7-331d703cb446",
             machine_id,
@@ -166,25 +139,19 @@ class Test_Order_Service_Deliver_Order:
         with pytest.raises(InvalidOrderStatusChangeException):
             machine_repo = DummyMachineRepository()
             order_repo = StubOrderRepository(
-                [FindByIdOrderResponseWithSuccessObject(order)],
+                [FindByIdAndMachineIdResponseWithSuccessObject(order)],
                 [],
                 [],
             )
             service = OrderService(machine_repo, order_repo)
-            input = DeliverOrderInputDTO(order.id.value)
+            input = DeliverOrderInputDTO(order.id.value, machine_id, datetime.now().isoformat(timespec="seconds"))
             await service.deliver_order(input)
 
     @pytest.mark.asyncio
     async def test_should_update_order_status(self):
         machine_id: str = "a8351752-ec32-4578-bdb6-883d703cbee7"
-        product: ProductEntity = ProductEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0
-        )
-        order_items = [
-            OrderItemEntity.create(
-                "f3331752-6c11-4578-adb7-331d703cb445", product, datetime(1970, 1, 1)
-            )
-        ]
+        product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0)
+        order_items = [OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", 1, product, datetime(1970, 1, 1))]
         order = OrderEntity.create(
             "f3331752-6c11-4578-adb7-331d703cb446",
             machine_id,
@@ -195,12 +162,12 @@ class Test_Order_Service_Deliver_Order:
         )
         machine_repo = DummyMachineRepository()
         order_repo = StubOrderRepository(
-            [FindByIdOrderResponseWithSuccessObject(order)],
+            [FindByIdAndMachineIdResponseWithSuccessObject(order)],
             [],
             [UpdateOrderResponseWithSuccessObject()],
         )
         service = OrderService(machine_repo, order_repo)
-        input = DeliverOrderInputDTO(order.id.value)
+        input = DeliverOrderInputDTO(order.id.value, machine_id, datetime(1970, 1, 1).isoformat(timespec="seconds"))
         await service.deliver_order(input)
 
         assert order.order_status == OrderStatus.DELIVERED

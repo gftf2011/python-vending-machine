@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from src.domain.entities.order import OrderEntity
 from src.domain.entities.payment import CashPaymentEntity, PaymentEntity, PaymentType
 
@@ -25,19 +27,17 @@ class PaymentService(IPaymentService):
         self.__order_repo: IOrderRepository = order_repo
         self.__payment_repo: IPaymentRepository = payment_repo
 
-    async def pay_for_product(
-        self, input_dto: PayForProductInputDTO
-    ) -> PayForProductOutputDTO:
-        order_found: OrderEntity = await self.__order_repo.find_by_id(
-            UUIDValueObject.create(input_dto.order_id)
+    async def pay_for_product(self, input_dto: PayForProductInputDTO) -> PayForProductOutputDTO:
+        order_found: OrderEntity = await self.__order_repo.find_by_id_and_machine_id(
+            UUIDValueObject.create(input_dto.order_id),
+            UUIDValueObject.create(input_dto.machine_id),
+            datetime.fromisoformat(input_dto.order_created_at),
         )
         if not order_found:
             raise OrderDoesNotExistException(input_dto.order_id)
 
         if order_found.total_amount > input_dto.amount_paid:
-            raise NotEnoughForPaymentException(
-                input_dto.amount_paid, order_found.id.value
-            )
+            raise NotEnoughForPaymentException(input_dto.amount_paid, order_found.id.value)
 
         payment: PaymentEntity = None
 

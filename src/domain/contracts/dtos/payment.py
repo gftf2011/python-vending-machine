@@ -8,8 +8,12 @@ PayForProductOutputDictType = Union[Dict["payment_id", str], Dict["change", int]
 
 
 class PayForProductInputDTO:
-    def __init__(self, order_id: str, amount_paid: int, payment_type: PaymentType):
+    def __init__(
+        self, order_id: str, machine_id: str, amount_paid: int, payment_type: PaymentType, order_created_at: str
+    ):
         self.order_id = order_id
+        self.machine_id = machine_id
+        self.order_created_at = order_created_at
         self.amount_paid = amount_paid
         self.payment_type = payment_type
 

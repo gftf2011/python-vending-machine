@@ -31,6 +31,7 @@ class ChooseProductInputControllerDTO:
 class PayForProductInputControllerDTO:
     def __init__(
         self,
+        machine_id: str,
         product_id: str,
         product_qty: int,
         payment_type: PaymentType,
@@ -40,7 +41,9 @@ class PayForProductInputControllerDTO:
         coin_25_qty: int,
         coin_50_qty: int,
         coin_100_qty: int,
+        order_created_at: str,
     ):
+        self.machine_id = machine_id
         self.product_id = product_id
         self.product_qty = product_qty
         self.payment_type = payment_type
@@ -50,6 +53,7 @@ class PayForProductInputControllerDTO:
         self.coin_25_qty = coin_25_qty
         self.coin_50_qty = coin_50_qty
         self.coin_100_qty = coin_100_qty
+        self.order_created_at = order_created_at
 
 
 class ChooseProductErrorOutputControllerDTO(BaseOutput):
@@ -117,9 +121,7 @@ class MachineController:
             )
             return self._presenter.execute(output)
         except Exception as error:
-            return self._presenter.execute(
-                ChooseProductErrorOutputControllerDTO(str(error))
-            )
+            return self._presenter.execute(ChooseProductErrorOutputControllerDTO(str(error)))
 
     async def pay_for_product(self, input_dto: PayForProductInputControllerDTO) -> Any:
         try:
@@ -135,31 +137,23 @@ class MachineController:
                     input_dto.coin_100_qty,
                 )
             )
-            create_order_output: CreateOrderOutputDTO = (
-                await self._order_service.create(
-                    CreateOrderInputDTO(
-                        self._machine_id, input_dto.product_id, input_dto.product_qty
-                    )
-                )
+            create_order_output: CreateOrderOutputDTO = await self._order_service.create(
+                CreateOrderInputDTO(self._machine_id, input_dto.product_id, input_dto.product_qty)
             )
             await self._payment_service.pay_for_product(
                 PayForProductInputDTO(
                     create_order_output.order_id,
+                    input_dto.machine_id,
                     add_coins_output.amount_paid,
                     input_dto.payment_type,
+                    input_dto.order_created_at,
                 )
             )
-            await self._machine_service.allow_dispense(
-                AllowDispenseInputDTO(self._machine_id)
-            )
+            await self._machine_service.allow_dispense(AllowDispenseInputDTO(self._machine_id))
             await self._machine_service.deliver_product(
-                DeliverProductInputDTO(
-                    self._machine_id, input_dto.product_id, input_dto.product_qty
-                )
+                DeliverProductInputDTO(self._machine_id, input_dto.product_id, input_dto.product_qty)
             )
-            await self._machine_service.finish_dispense(
-                FinishDispenseInputDTO(self._machine_id)
-            )
+            await self._machine_service.finish_dispense(FinishDispenseInputDTO(self._machine_id))
             return self._presenter.execute(add_coins_output)
         except Exception as error:
             return self._presenter.execute(

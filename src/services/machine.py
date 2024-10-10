@@ -38,25 +38,19 @@ class MachineService(IMachineService):
     def __init__(self, machine_repo: IMachineRepository):
         self.__machine_repo: IMachineRepository = machine_repo
 
-    def __find_product_by_code(
-        self, product_code: str, products: list[ProductEntity]
-    ) -> Optional[ProductEntity]:
+    def __find_product_by_code(self, product_code: str, products: list[ProductEntity]) -> Optional[ProductEntity]:
         for product in products:
             if product_code == product.code:
                 return product
         return None
 
-    def __find_product_by_id(
-        self, product_id: str, products: list[ProductEntity]
-    ) -> Optional[ProductEntity]:
+    def __find_product_by_id(self, product_id: str, products: list[ProductEntity]) -> Optional[ProductEntity]:
         for product in products:
             if product_id == product.id.value:
                 return product
         return None
 
-    async def choose_product(
-        self, input_dto: ChooseProductInputDTO
-    ) -> ChooseProductOutputDTO:
+    async def choose_product(self, input_dto: ChooseProductInputDTO) -> ChooseProductOutputDTO:
         machine_found: MachineEntity = await self.__machine_repo.find_by_id(
             UUIDValueObject.create(input_dto.machine_id)
         )
@@ -66,18 +60,14 @@ class MachineService(IMachineService):
             raise MachineIsNotReadyException()
 
         products: list[ProductEntity] = machine_found.products
-        product_found: ProductEntity = self.__find_product_by_code(
-            input_dto.product_code, products
-        )
+        product_found: ProductEntity = self.__find_product_by_code(input_dto.product_code, products)
 
         if not product_found:
             raise ProductDoesNotExistException()
         if product_found.qty == 0:
             raise UnavailableProductException(product_found.id.value)
 
-        return ChooseProductOutputDTO(
-            product_found.id.value, product_found.unit_price, product_found.name
-        )
+        return ChooseProductOutputDTO(product_found.id.value, product_found.unit_price, product_found.name)
 
     async def add_coins(self, input_dto: AddCoinsInputDTO) -> AddCoinsOutputDTO:
         machine_found: MachineEntity = await self.__machine_repo.find_by_id(
@@ -89,9 +79,7 @@ class MachineService(IMachineService):
             raise MachineIsNotReadyException()
 
         products: list[ProductEntity] = machine_found.products
-        product_found: ProductEntity = self.__find_product_by_id(
-            input_dto.product_id, products
-        )
+        product_found: ProductEntity = self.__find_product_by_id(input_dto.product_id, products)
 
         if not product_found:
             raise ProductDoesNotExistException()
@@ -146,9 +134,7 @@ class MachineService(IMachineService):
 
         await self.__machine_repo.update(machine_found)
 
-    async def deliver_product(
-        self, input_dto: DeliverProductInputDTO
-    ) -> DeliverProductOutputDTO:
+    async def deliver_product(self, input_dto: DeliverProductInputDTO) -> DeliverProductOutputDTO:
         machine_found: MachineEntity = await self.__machine_repo.find_by_id(
             UUIDValueObject.create(input_dto.machine_id)
         )
@@ -158,9 +144,7 @@ class MachineService(IMachineService):
             raise MachineIsNotDispensingException()
 
         products: list[ProductEntity] = machine_found.products
-        product_found: ProductEntity = self.__find_product_by_id(
-            input_dto.product_id, products
-        )
+        product_found: ProductEntity = self.__find_product_by_id(input_dto.product_id, products)
 
         if not product_found:
             raise ProductDoesNotExistException()

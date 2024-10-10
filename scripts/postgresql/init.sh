@@ -67,7 +67,7 @@ psql $POSTGRES_DB -c "
 
     CREATE TABLE IF NOT EXISTS orders_schema.orders(
         id UUID NOT NULL,
-        machine_id TEXT NOT NULL,
+        machine_id UUID NOT NULL,
         status order_status NOT NULL,
         total_amount INT NOT NULL,
         created_at TIMESTAMP NOT NULL,
@@ -228,7 +228,7 @@ psql $POSTGRES_DB -c "
             RAISE EXCEPTION 'no products to insert';
         END IF;
 
-        IF array_length(products, 1) > 100 THEN
+        IF array_length(products, 1) > 99 THEN
             RAISE EXCEPTION 'too many products to register';
         END IF;
 

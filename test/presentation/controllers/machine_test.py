@@ -1,6 +1,8 @@
 import json
 import pytest
 
+from datetime import datetime
+
 from src.domain.entities.machine import MachineEntity, MachineState
 from src.domain.entities.owner import OwnerEntity
 from src.domain.entities.product import ProductEntity
@@ -49,24 +51,18 @@ class Test_Machine_Controller_Choose_Product:
             "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f",
         )
 
-        output = await machine_controller.choose_product(
-            ChooseProductInputControllerDTO("00")
-        )
+        output = await machine_controller.choose_product(ChooseProductInputControllerDTO("00"))
 
         assert (
             json.loads(output)["error"]["message"]
-            == 'machine - "'
-            + "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
-            + '" - is not registered in the system'
+            == 'machine - "' + "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f" + '" - is not registered in the system'
         )
 
     @pytest.mark.asyncio
     async def test_should_return_error_message_if_machine_is_not_ready(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100),
             ProductEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cc000",
                 "Almond Joy Candy Bar",
@@ -74,13 +70,9 @@ class Test_Machine_Controller_Choose_Product:
                 "01",
                 125,
             ),
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75),
         ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
         machine = MachineEntity.create(
             machine_id,
             owner,
@@ -111,22 +103,15 @@ class Test_Machine_Controller_Choose_Product:
             json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
-        output = await machine_controller.choose_product(
-            ChooseProductInputControllerDTO(products[0].code)
-        )
+        output = await machine_controller.choose_product(ChooseProductInputControllerDTO(products[0].code))
 
-        assert (
-            json.loads(output)["error"]["message"]
-            == "machine is not READY for operation"
-        )
+        assert json.loads(output)["error"]["message"] == "machine is not READY for operation"
 
     @pytest.mark.asyncio
     async def test_should_return_error_message_if_product_does_not_exists(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100),
             ProductEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cc000",
                 "Almond Joy Candy Bar",
@@ -134,13 +119,9 @@ class Test_Machine_Controller_Choose_Product:
                 "01",
                 125,
             ),
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75),
         ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
         machine = MachineEntity.create(
             machine_id,
             owner,
@@ -169,9 +150,7 @@ class Test_Machine_Controller_Choose_Product:
             json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
-        output = await machine_controller.choose_product(
-            ChooseProductInputControllerDTO("03")
-        )
+        output = await machine_controller.choose_product(ChooseProductInputControllerDTO("03"))
 
         assert json.loads(output)["error"]["message"] == "product does not exists"
 
@@ -179,9 +158,7 @@ class Test_Machine_Controller_Choose_Product:
     async def test_should_return_error_message_if_product_is_out_of_stock(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 0, "00", 100
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 0, "00", 100),
             ProductEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cc000",
                 "Almond Joy Candy Bar",
@@ -189,13 +166,9 @@ class Test_Machine_Controller_Choose_Product:
                 "01",
                 125,
             ),
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75),
         ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
         machine = MachineEntity.create(
             machine_id,
             owner,
@@ -224,24 +197,18 @@ class Test_Machine_Controller_Choose_Product:
             json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
-        output = await machine_controller.choose_product(
-            ChooseProductInputControllerDTO(products[0].code)
-        )
+        output = await machine_controller.choose_product(ChooseProductInputControllerDTO(products[0].code))
 
         assert (
             json.loads(output)["error"]["message"]
-            == 'product - "'
-            + products[0].id.value
-            + '" - is not available in the machine'
+            == 'product - "' + products[0].id.value + '" - is not available in the machine'
         )
 
     @pytest.mark.asyncio
     async def test_should_return_output(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100),
             ProductEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cc000",
                 "Almond Joy Candy Bar",
@@ -249,13 +216,9 @@ class Test_Machine_Controller_Choose_Product:
                 "01",
                 125,
             ),
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75),
         ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
         machine = MachineEntity.create(
             machine_id,
             owner,
@@ -284,9 +247,7 @@ class Test_Machine_Controller_Choose_Product:
             json_presenter, machine_service, order_service, payment_service, machine_id
         )
 
-        output = await machine_controller.choose_product(
-            ChooseProductInputControllerDTO(products[0].code)
-        )
+        output = await machine_controller.choose_product(ChooseProductInputControllerDTO(products[0].code))
 
         loaded_output = json.loads(output)
 
@@ -306,9 +267,7 @@ class Test_Machine_Controller_Pay_For_Product:
     async def test_should_return_error_message_if_machine_is_not_registered(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100),
             ProductEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cc000",
                 "Almond Joy Candy Bar",
@@ -316,13 +275,9 @@ class Test_Machine_Controller_Pay_For_Product:
                 "01",
                 125,
             ),
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75),
         ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
         machine = MachineEntity.create(
             machine_id,
             owner,
@@ -359,6 +314,7 @@ class Test_Machine_Controller_Pay_For_Product:
             PayForProductInputControllerDTO(
                 machine_id,
                 products[0].id.value,
+                0,
                 PaymentType.CASH,
                 0,
                 0,
@@ -366,14 +322,13 @@ class Test_Machine_Controller_Pay_For_Product:
                 0,
                 0,
                 0,
+                datetime.now().isoformat(timespec="seconds"),
             )
         )
 
         assert (
             json.loads(output)["error"]["message"]
-            == 'machine - "'
-            + "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f"
-            + '" - is not registered in the system'
+            == 'machine - "' + "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f" + '" - is not registered in the system'
         )
         assert json.loads(output)["error"]["data"]["coin_01"] == 0
         assert json.loads(output)["error"]["data"]["coin_05"] == 0
@@ -386,9 +341,7 @@ class Test_Machine_Controller_Pay_For_Product:
     async def test_should_return_error_message_if_machine_is_not_ready(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100),
             ProductEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cc000",
                 "Almond Joy Candy Bar",
@@ -396,13 +349,9 @@ class Test_Machine_Controller_Pay_For_Product:
                 "01",
                 125,
             ),
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75),
         ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
         machine = MachineEntity.create(
             machine_id,
             owner,
@@ -439,6 +388,7 @@ class Test_Machine_Controller_Pay_For_Product:
             PayForProductInputControllerDTO(
                 machine_id,
                 products[0].id.value,
+                0,
                 PaymentType.CASH,
                 0,
                 0,
@@ -446,13 +396,11 @@ class Test_Machine_Controller_Pay_For_Product:
                 0,
                 0,
                 0,
+                datetime.now().isoformat(timespec="seconds"),
             )
         )
 
-        assert (
-            json.loads(output)["error"]["message"]
-            == "machine is not READY for operation"
-        )
+        assert json.loads(output)["error"]["message"] == "machine is not READY for operation"
         assert json.loads(output)["error"]["data"]["coin_01"] == 0
         assert json.loads(output)["error"]["data"]["coin_05"] == 0
         assert json.loads(output)["error"]["data"]["coin_10"] == 0
@@ -464,9 +412,7 @@ class Test_Machine_Controller_Pay_For_Product:
     async def test_should_return_error_if_change_is_negative(self):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100),
             ProductEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cc000",
                 "Almond Joy Candy Bar",
@@ -474,13 +420,9 @@ class Test_Machine_Controller_Pay_For_Product:
                 "01",
                 125,
             ),
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75),
         ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
         machine = MachineEntity.create(
             machine_id,
             owner,
@@ -511,7 +453,17 @@ class Test_Machine_Controller_Pay_For_Product:
 
         output = await machine_controller.pay_for_product(
             PayForProductInputControllerDTO(
-                products[0].id.value, 1, PaymentType.CASH, 4, 0, 2, 1, 1, 0
+                machine_id,
+                products[0].id.value,
+                1,
+                PaymentType.CASH,
+                4,
+                0,
+                2,
+                1,
+                1,
+                0,
+                datetime.now().isoformat(timespec="seconds"),
             )
         )
 
@@ -529,9 +481,7 @@ class Test_Machine_Controller_Pay_For_Product:
     ):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100),
             ProductEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cc000",
                 "Almond Joy Candy Bar",
@@ -539,13 +489,9 @@ class Test_Machine_Controller_Pay_For_Product:
                 "01",
                 125,
             ),
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75),
         ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
         machine = MachineEntity.create(
             machine_id,
             owner,
@@ -576,6 +522,7 @@ class Test_Machine_Controller_Pay_For_Product:
 
         output = await machine_controller.pay_for_product(
             PayForProductInputControllerDTO(
+                machine_id,
                 "b9651752-6c44-4578-bdb6-883d703cbffe",
                 1,
                 PaymentType.CASH,
@@ -585,6 +532,7 @@ class Test_Machine_Controller_Pay_For_Product:
                 0,
                 0,
                 0,
+                datetime.now().isoformat(timespec="seconds"),
             )
         )
 
@@ -602,9 +550,7 @@ class Test_Machine_Controller_Pay_For_Product:
     ):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 0, "00", 100
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 0, "00", 100),
             ProductEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cc000",
                 "Almond Joy Candy Bar",
@@ -612,13 +558,9 @@ class Test_Machine_Controller_Pay_For_Product:
                 "01",
                 125,
             ),
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75),
         ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
         machine = MachineEntity.create(
             machine_id,
             owner,
@@ -649,6 +591,7 @@ class Test_Machine_Controller_Pay_For_Product:
 
         output = await machine_controller.pay_for_product(
             PayForProductInputControllerDTO(
+                machine_id,
                 products[0].id.value,
                 1,
                 PaymentType.CASH,
@@ -658,14 +601,13 @@ class Test_Machine_Controller_Pay_For_Product:
                 0,
                 0,
                 0,
+                datetime.now().isoformat(timespec="seconds"),
             )
         )
 
         assert (
             json.loads(output)["error"]["message"]
-            == 'product - "'
-            + products[0].id.value
-            + '" - is not available in the machine'
+            == 'product - "' + products[0].id.value + '" - is not available in the machine'
         )
         assert json.loads(output)["error"]["data"]["coin_01"] == 0
         assert json.loads(output)["error"]["data"]["coin_05"] == 1
@@ -680,9 +622,7 @@ class Test_Machine_Controller_Pay_For_Product:
     ):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100),
             ProductEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cc000",
                 "Almond Joy Candy Bar",
@@ -690,13 +630,9 @@ class Test_Machine_Controller_Pay_For_Product:
                 "01",
                 125,
             ),
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75),
         ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
         machine = MachineEntity.create(
             machine_id,
             owner,
@@ -727,6 +663,7 @@ class Test_Machine_Controller_Pay_For_Product:
 
         output = await machine_controller.pay_for_product(
             PayForProductInputControllerDTO(
+                machine_id,
                 products[1].id.value,
                 1,
                 PaymentType.CASH,
@@ -736,12 +673,11 @@ class Test_Machine_Controller_Pay_For_Product:
                 0,
                 1,
                 1,
+                datetime.now().isoformat(timespec="seconds"),
             )
         )
 
-        assert (
-            json.loads(output)["error"]["message"] == "not enough change in the machine"
-        )
+        assert json.loads(output)["error"]["message"] == "not enough change in the machine"
         assert json.loads(output)["error"]["data"]["coin_01"] == 0
         assert json.loads(output)["error"]["data"]["coin_05"] == 0
         assert json.loads(output)["error"]["data"]["coin_10"] == 0
@@ -755,9 +691,7 @@ class Test_Machine_Controller_Pay_For_Product:
     ):
         machine_id: str = "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4e"
         products = [
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbfff", "Hersheys", 1, "00", 100),
             ProductEntity.create(
                 "b9651752-6c44-4578-bdb6-883d703cc000",
                 "Almond Joy Candy Bar",
@@ -765,13 +699,9 @@ class Test_Machine_Controller_Pay_For_Product:
                 "01",
                 125,
             ),
-            ProductEntity.create(
-                "b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75
-            ),
+            ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cc001", "Twix Candy Bars", 1, "02", 75),
         ]
-        owner = OwnerEntity.create(
-            "b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com"
-        )
+        owner = OwnerEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Sebastião Maia", "test@mail.com")
         machine = MachineEntity.create(
             machine_id,
             owner,
@@ -802,6 +732,7 @@ class Test_Machine_Controller_Pay_For_Product:
 
         output = await machine_controller.pay_for_product(
             PayForProductInputControllerDTO(
+                machine_id,
                 products[0].id.value,
                 1,
                 PaymentType.CASH,
@@ -811,6 +742,7 @@ class Test_Machine_Controller_Pay_For_Product:
                 0,
                 0,
                 2,
+                datetime.now().isoformat(timespec="seconds"),
             )
         )
 

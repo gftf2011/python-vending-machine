@@ -1,4 +1,5 @@
 from typing import Self
+from datetime import datetime
 
 from src.domain.entities.order import OrderEntity
 
@@ -25,18 +26,12 @@ class _BinaryTree:
             self._insert(value, self.root)
 
     def _insert(self, value: OrderEntity, current_node: _Node) -> None:
-        if (
-            value.id.convert_value_to_UUID()
-            < current_node.value.id.convert_value_to_UUID()
-        ):
+        if value.id.convert_value_to_UUID() < current_node.value.id.convert_value_to_UUID():
             if current_node.left is None:
                 current_node.left = _Node(value)
             else:
                 self._insert(value, current_node.left)
-        elif (
-            value.id.convert_value_to_UUID()
-            > current_node.value.id.convert_value_to_UUID()
-        ):
+        elif value.id.convert_value_to_UUID() > current_node.value.id.convert_value_to_UUID():
             if current_node.right is None:
                 current_node.right = _Node(value)
             else:
@@ -44,7 +39,9 @@ class _BinaryTree:
         else:
             raise Exception("element already exists in tree")
 
-    def find_by_id(self, uuid: UUIDValueObject) -> OrderEntity:
+    def find_by_id_and_machine_id(
+        self, uuid: UUIDValueObject, machine_id: UUIDValueObject, created_at: datetime
+    ) -> OrderEntity:
         node: _Node = self._inorder_traversal(self.root, uuid)
         if node is None:
             return None
@@ -72,9 +69,7 @@ class FakeOrderRepository(IOrderRepository):
     _instance: Self = None
 
     def __new__(cls, *args, **kwargs):
-        raise Exception(
-            "Use the 'get_instance' method to create an instance of this class."
-        )
+        raise Exception("Use the 'get_instance' method to create an instance of this class.")
 
     def __init__(self):
         self._record = _BinaryTree()
@@ -90,8 +85,10 @@ class FakeOrderRepository(IOrderRepository):
     def reset_instance(cls) -> None:
         cls._instance = None
 
-    async def find_by_id(self, id: UUIDValueObject) -> OrderEntity:
-        return self._record.find_by_id(id)
+    async def find_by_id_and_machine_id(
+        self, id: UUIDValueObject, machine_id: UUIDValueObject, created_at: datetime
+    ) -> OrderEntity:
+        return self._record.find_by_id_and_machine_id(id, machine_id, created_at)
 
     async def save(self, entity: OrderEntity) -> None:
         self._record.save(entity)

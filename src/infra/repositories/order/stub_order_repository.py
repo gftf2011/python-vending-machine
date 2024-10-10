@@ -3,25 +3,25 @@ from abc import ABC, abstractmethod
 from src.domain.repositories.order import IOrderRepository
 
 
-class IFindByIdResponseObject(ABC):
+class IFindByIdAndMachineIdResponseObject(ABC):
     @abstractmethod
-    def execute(self, id):
+    def execute(self, id, machine_id, created_at):
         pass
 
 
-class FindByIdResponseWithSuccessObject(IFindByIdResponseObject):
+class FindByIdAndMachineIdResponseWithSuccessObject(IFindByIdAndMachineIdResponseObject):
     def __init__(self, response):
         self.__response = response
 
-    def execute(self, id):
+    def execute(self, id, machine_id, created_at):
         return self.__response
 
 
-class FindByIdResponseWithFailureObject(IFindByIdResponseObject):
+class FindByIdAndMachineIdResponseWithFailureObject(IFindByIdAndMachineIdResponseObject):
     def __init__(self, exception: Exception):
         self.__response = exception
 
-    def execute(self, id):
+    def execute(self, id, machine_id, created_at):
         raise self.__response
 
 
@@ -66,7 +66,7 @@ class SaveResponseWithFailureObject(ISaveResponseObject):
 class StubOrderRepository(IOrderRepository):
     def __init__(
         self,
-        find_by_id_response_list: list[IFindByIdResponseObject],
+        find_by_id_response_list: list[IFindByIdAndMachineIdResponseObject],
         save_response_list: list[ISaveResponseObject],
         update_response_list: list[IUpdateResponseObject],
     ):
@@ -77,10 +77,10 @@ class StubOrderRepository(IOrderRepository):
         self.__save_counter = 0
         self.__update_counter = 0
 
-    async def find_by_id(self, id):
+    async def find_by_id_and_machine_id(self, id, machine_id, created_at):
         aux_counter = self.__find_by_id_counter
         self.__find_by_id_counter += 1
-        response = self.__find_by_id_response_list[aux_counter].execute(id)
+        response = self.__find_by_id_response_list[aux_counter].execute(id, machine_id, created_at)
         return response
 
     async def update(self, entity):

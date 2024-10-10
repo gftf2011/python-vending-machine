@@ -21,5 +21,7 @@ class CreateOrderOutputDTO(BaseOutput):
 
 
 class DeliverOrderInputDTO:
-    def __init__(self, order_id: str):
+    def __init__(self, order_id: str, machine_id: str, order_created_at: str):
         self.order_id = order_id
+        self.machine_id = machine_id
+        self.order_created_at = order_created_at
