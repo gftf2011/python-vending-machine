@@ -1,7 +1,8 @@
+from datetime import datetime
+
 import pytest
 import pytest_asyncio
 
-from datetime import datetime
 from testcontainers.postgres import PostgresContainer
 
 from src.domain.value_objects.uuid import UUIDValueObject
@@ -28,7 +29,7 @@ from src.infra.database.postgres.psycopg2_transaction import (
 from src.infra.repositories.order.psycopg2_order_repository import Psycopg2OrderRepository
 
 
-class Test_Psycopg2_Machine_Repository:
+class Test_Psycopg2_Order_Repository:
     @pytest.fixture
     def postgres_container(self) -> PostgresContainer:
         postgres = (

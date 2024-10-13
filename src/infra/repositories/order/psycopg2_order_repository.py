@@ -76,7 +76,7 @@ class Psycopg2OrderRepository(IOrderRepository):
                     INNER JOIN products_schema.products products1 ON machine_products1.product_id = products1.id
                     WHERE machine_id = %s
                 ) AS machine_products2
-                ON machine_products2.product_id = order_items.product_id""",
+                ON machine_products2.product_id = order_items.product_id;""",
             "values": (
                 id.value,
                 timerange_month_tuple[0],
