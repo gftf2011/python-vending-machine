@@ -1,3 +1,5 @@
+import json
+
 from typing import Any, TypedDict
 from psycopg2 import pool as psycopg2_pool
 from psycopg2.extras import RealDictCursor
@@ -21,9 +23,7 @@ class Psycopg2Transaction(IDatabaseTransaction):
         self._cursor = None
 
     async def create_client(self) -> None:
-        self._pool: psycopg2_pool.ThreadedConnectionPool = (
-            await self._db_pool_conn.get_pool()
-        )
+        self._pool: psycopg2_pool.ThreadedConnectionPool = await self._db_pool_conn.get_pool()
         self._conn = self._pool.getconn()
         self._cursor = self._conn.cursor(cursor_factory=RealDictCursor)
 

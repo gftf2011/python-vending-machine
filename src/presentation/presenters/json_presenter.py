@@ -9,4 +9,4 @@ from src.domain.contracts.dtos.base import BaseOutput
 
 class JSONPresenter(BasePresenter):
     def execute(self, output: BaseOutput) -> Any:
-        return json.dumps(output.to_dict())
+        return output.to_dict()

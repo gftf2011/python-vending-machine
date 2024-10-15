@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  postgresql:
+    container_name: postgresql_core_db_dev
+    build:
+      context: .
+      dockerfile: ./docker/dev/images/postgresql/Dockerfile
+      args:
+        postgres_root_user: postgres
+        postgres_root_password: root
+        postgres_user: app
+        postgres_password: 0863b9d7fe174a9b9fbff99b8a17f882
+        postgres_db: postgres
+        postgres_port: 5432
+    restart: always
+    volumes:
+      - ./scripts/postgresql/init.sh:/docker-entrypoint-initdb.d/init.sh
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready --username=postgres --dbname=postgres --port=5432",
+        ]
+      interval: 30s
+      retries: 10
+      start_period: 30s
+      timeout: 30s
+
+  pg_admin:
+    container_name: pg_admin_dev
+    build:
+      context: .
+      dockerfile: ./docker/dev/images/pg_admin/Dockerfile
+      args:
+        pg_admin_email: admin@mail.com
+        pg_admin_pass: admin
+        pg_admin_port: 80
+    restart: always
+    ports:
+      - 8080:80
+    depends_on:
+      postgresql:
+        condition: service_healthy
+
+volumes:
+  postgres_data: {}

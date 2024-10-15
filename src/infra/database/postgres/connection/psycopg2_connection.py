@@ -60,7 +60,7 @@ class Psycopg2PoolConnection(IDatabasePoolConnection):
             while pool_client is None:
                 try:
                     pool_client = Psycopg2PoolConnection._pool.getconn()
-                except Exception:
+                except Exception as e:
                     pool_client = None
 
             Psycopg2PoolConnection._pool.putconn(pool_client)

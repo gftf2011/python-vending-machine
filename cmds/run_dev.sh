@@ -1,0 +1,1 @@
+rm -rf docker-compose.yml && cat docker/dev/docker-compose.yml >> docker-compose.yml && rm -rf .env && cat ./env/dev/.env >> .env && chmod +x ./scripts/postgresql/init.sh && docker-compose up -d --remove-orphans && poetry run uvicorn src.main.app:init --factory --reload

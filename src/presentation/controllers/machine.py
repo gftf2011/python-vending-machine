@@ -24,8 +24,9 @@ from src.presentation.contracts.presenters.base import BasePresenter
 
 
 class ChooseProductInputControllerDTO:
-    def __init__(self, product_code: str):
+    def __init__(self, product_code: str, machine_id: str):
         self.product_code = product_code
+        self.machine_id = machine_id
 
 
 class PayForProductInputControllerDTO:
@@ -106,28 +107,34 @@ class MachineController:
         machine_service: IMachineService,
         order_service: IOrderService,
         payment_service: IPaymentService,
-        machine_id: str,
     ):
         self._presenter = presenter
         self._machine_service = machine_service
         self._order_service = order_service
         self._payment_service = payment_service
-        self._machine_id = machine_id
 
     async def choose_product(self, input_dto: ChooseProductInputControllerDTO) -> Any:
         try:
             output: ChooseProductOutputDTO = await self._machine_service.choose_product(
-                ChooseProductInputDTO(input_dto.product_code, self._machine_id)
+                ChooseProductInputDTO(input_dto.product_code, input_dto.machine_id)
             )
-            return self._presenter.execute(output)
+            return self._presenter.execute(output), 200
         except Exception as error:
-            return self._presenter.execute(ChooseProductErrorOutputControllerDTO(str(error)))
+            if (
+                type(error).__name__ == "UnregisteredMachineException"
+                or type(error).__name__ == "ProductDoesNotExistException"
+                or type(error).__name__ == "UnavailableProductException"
+            ):
+                return self._presenter.execute(ChooseProductErrorOutputControllerDTO(str(error))), 404
+            if type(error).__name__ == "MachineIsNotReadyException":
+                return self._presenter.execute(ChooseProductErrorOutputControllerDTO(str(error))), 400
+            return self._presenter.execute(ChooseProductErrorOutputControllerDTO(str(error))), 500
 
     async def pay_for_product(self, input_dto: PayForProductInputControllerDTO) -> Any:
         try:
             add_coins_output = await self._machine_service.add_coins(
                 AddCoinsInputDTO(
-                    self._machine_id,
+                    input_dto.machine_id,
                     input_dto.product_id,
                     input_dto.coin_01_qty,
                     input_dto.coin_05_qty,
@@ -138,7 +145,7 @@ class MachineController:
                 )
             )
             create_order_output: CreateOrderOutputDTO = await self._order_service.create(
-                CreateOrderInputDTO(self._machine_id, input_dto.product_id, input_dto.product_qty)
+                CreateOrderInputDTO(input_dto.machine_id, input_dto.product_id, input_dto.product_qty)
             )
             await self._payment_service.pay_for_product(
                 PayForProductInputDTO(
@@ -149,21 +156,74 @@ class MachineController:
                     input_dto.order_created_at,
                 )
             )
-            await self._machine_service.allow_dispense(AllowDispenseInputDTO(self._machine_id))
+            await self._machine_service.allow_dispense(AllowDispenseInputDTO(input_dto.machine_id))
             await self._machine_service.deliver_product(
-                DeliverProductInputDTO(self._machine_id, input_dto.product_id, input_dto.product_qty)
+                DeliverProductInputDTO(input_dto.machine_id, input_dto.product_id, input_dto.product_qty)
             )
-            await self._machine_service.finish_dispense(FinishDispenseInputDTO(self._machine_id))
-            return self._presenter.execute(add_coins_output)
+            await self._machine_service.finish_dispense(FinishDispenseInputDTO(input_dto.machine_id))
+            return self._presenter.execute(add_coins_output), 201
         except Exception as error:
-            return self._presenter.execute(
-                PayForProductErrorOutputControllerDTO(
-                    str(error),
-                    input_dto.coin_01_qty,
-                    input_dto.coin_05_qty,
-                    input_dto.coin_10_qty,
-                    input_dto.coin_25_qty,
-                    input_dto.coin_50_qty,
-                    input_dto.coin_100_qty,
+            if type(error).__name__ == "MachineIsNotReadyException":
+                return (
+                    self._presenter.execute(
+                        PayForProductErrorOutputControllerDTO(
+                            str(error),
+                            input_dto.coin_01_qty,
+                            input_dto.coin_05_qty,
+                            input_dto.coin_10_qty,
+                            input_dto.coin_25_qty,
+                            input_dto.coin_50_qty,
+                            input_dto.coin_100_qty,
+                        )
+                    ),
+                    400,
                 )
+            if (
+                type(error).__name__ == "UnregisteredMachineException"
+                or type(error).__name__ == "ProductDoesNotExistException"
+                or type(error).__name__ == "UnavailableProductException"
+                or type(error).__name__ == "NoChangeAvailableException"
+            ):
+                return (
+                    self._presenter.execute(
+                        PayForProductErrorOutputControllerDTO(
+                            str(error),
+                            input_dto.coin_01_qty,
+                            input_dto.coin_05_qty,
+                            input_dto.coin_10_qty,
+                            input_dto.coin_25_qty,
+                            input_dto.coin_50_qty,
+                            input_dto.coin_100_qty,
+                        )
+                    ),
+                    404,
+                )
+            if type(error).__name__ == "IncorrectNegativeChangeException":
+                return (
+                    self._presenter.execute(
+                        PayForProductErrorOutputControllerDTO(
+                            str(error),
+                            input_dto.coin_01_qty,
+                            input_dto.coin_05_qty,
+                            input_dto.coin_10_qty,
+                            input_dto.coin_25_qty,
+                            input_dto.coin_50_qty,
+                            input_dto.coin_100_qty,
+                        )
+                    ),
+                    416,
+                )
+            return (
+                self._presenter.execute(
+                    PayForProductErrorOutputControllerDTO(
+                        str(error),
+                        input_dto.coin_01_qty,
+                        input_dto.coin_05_qty,
+                        input_dto.coin_10_qty,
+                        input_dto.coin_25_qty,
+                        input_dto.coin_50_qty,
+                        input_dto.coin_100_qty,
+                    )
+                ),
+                500,
             )

@@ -124,7 +124,6 @@ celerybeat.pid
 # Environments
 .env
 .venv
-env/
 venv/
 ENV/
 env.bak/
@@ -167,3 +166,8 @@ poetry.lock
 # docker-compose
 docker-compose.yml
 !docker/test/docker-compose.yml
+!docker/dev/docker-compose.yml
+
+# env folder
+!env/dev/.env
+!env/test/.env

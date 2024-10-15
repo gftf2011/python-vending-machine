@@ -1,7 +1,7 @@
+from datetime import datetime
+
 import json
 import pytest
-
-from datetime import datetime
 
 from src.domain.entities.machine import MachineEntity, MachineState
 from src.domain.entities.owner import OwnerEntity
@@ -48,15 +48,17 @@ class Test_Machine_Controller_Choose_Product:
             machine_service,
             order_service,
             payment_service,
-            "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f",
         )
 
-        output = await machine_controller.choose_product(ChooseProductInputControllerDTO("00"))
+        output = await machine_controller.choose_product(
+            ChooseProductInputControllerDTO("00", "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f")
+        )
 
         assert (
-            json.loads(output)["error"]["message"]
+            output[0]["error"]["message"]
             == 'machine - "' + "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f" + '" - is not registered in the system'
         )
+        assert output[1] == 404
 
     @pytest.mark.asyncio
     async def test_should_return_error_message_if_machine_is_not_ready(self):
@@ -100,12 +102,17 @@ class Test_Machine_Controller_Choose_Product:
 
         json_presenter = JSONPresenter()
         machine_controller = MachineController(
-            json_presenter, machine_service, order_service, payment_service, machine_id
+            json_presenter,
+            machine_service,
+            order_service,
+            payment_service,
         )
 
-        output = await machine_controller.choose_product(ChooseProductInputControllerDTO(products[0].code))
+        output = await machine_controller.choose_product(ChooseProductInputControllerDTO(products[0].code, machine_id))
 
-        assert json.loads(output)["error"]["message"] == "machine is not READY for operation"
+        assert output[0]["error"]["message"] == "machine is not READY for operation"
+
+        assert output[1] == 400
 
     @pytest.mark.asyncio
     async def test_should_return_error_message_if_product_does_not_exists(self):
@@ -146,13 +153,13 @@ class Test_Machine_Controller_Choose_Product:
         payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
-        machine_controller = MachineController(
-            json_presenter, machine_service, order_service, payment_service, machine_id
-        )
+        machine_controller = MachineController(json_presenter, machine_service, order_service, payment_service)
 
-        output = await machine_controller.choose_product(ChooseProductInputControllerDTO("03"))
+        output = await machine_controller.choose_product(ChooseProductInputControllerDTO("03", machine_id))
 
-        assert json.loads(output)["error"]["message"] == "product does not exists"
+        assert output[0]["error"]["message"] == "product does not exists"
+
+        assert output[1] == 404
 
     @pytest.mark.asyncio
     async def test_should_return_error_message_if_product_is_out_of_stock(self):
@@ -193,16 +200,16 @@ class Test_Machine_Controller_Choose_Product:
         payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
-        machine_controller = MachineController(
-            json_presenter, machine_service, order_service, payment_service, machine_id
-        )
+        machine_controller = MachineController(json_presenter, machine_service, order_service, payment_service)
 
-        output = await machine_controller.choose_product(ChooseProductInputControllerDTO(products[0].code))
+        output = await machine_controller.choose_product(ChooseProductInputControllerDTO(products[0].code, machine_id))
 
         assert (
-            json.loads(output)["error"]["message"]
+            output[0]["error"]["message"]
             == 'product - "' + products[0].id.value + '" - is not available in the machine'
         )
+
+        assert output[1] == 404
 
     @pytest.mark.asyncio
     async def test_should_return_output(self):
@@ -243,17 +250,17 @@ class Test_Machine_Controller_Choose_Product:
         payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
-        machine_controller = MachineController(
-            json_presenter, machine_service, order_service, payment_service, machine_id
-        )
+        machine_controller = MachineController(json_presenter, machine_service, order_service, payment_service)
 
-        output = await machine_controller.choose_product(ChooseProductInputControllerDTO(products[0].code))
+        output = await machine_controller.choose_product(ChooseProductInputControllerDTO(products[0].code, machine_id))
 
-        loaded_output = json.loads(output)
+        loaded_output = output[0]
 
         assert loaded_output["product_id"] == products[0].id.value
         assert loaded_output["product_price"] == products[0].unit_price
         assert loaded_output["product_name"] == products[0].name
+
+        assert output[1] == 200
 
 
 class Test_Machine_Controller_Pay_For_Product:
@@ -307,12 +314,11 @@ class Test_Machine_Controller_Pay_For_Product:
             machine_service,
             order_service,
             payment_service,
-            "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f",
         )
 
         output = await machine_controller.pay_for_product(
             PayForProductInputControllerDTO(
-                machine_id,
+                "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f",
                 products[0].id.value,
                 0,
                 PaymentType.CASH,
@@ -327,15 +333,17 @@ class Test_Machine_Controller_Pay_For_Product:
         )
 
         assert (
-            json.loads(output)["error"]["message"]
+            output[0]["error"]["message"]
             == 'machine - "' + "43c6fc3c-a51a-4c5d-9c1d-aae7e0c6ac4f" + '" - is not registered in the system'
         )
-        assert json.loads(output)["error"]["data"]["coin_01"] == 0
-        assert json.loads(output)["error"]["data"]["coin_05"] == 0
-        assert json.loads(output)["error"]["data"]["coin_10"] == 0
-        assert json.loads(output)["error"]["data"]["coin_25"] == 0
-        assert json.loads(output)["error"]["data"]["coin_50"] == 0
-        assert json.loads(output)["error"]["data"]["coin_100"] == 0
+        assert output[0]["error"]["data"]["coin_01"] == 0
+        assert output[0]["error"]["data"]["coin_05"] == 0
+        assert output[0]["error"]["data"]["coin_10"] == 0
+        assert output[0]["error"]["data"]["coin_25"] == 0
+        assert output[0]["error"]["data"]["coin_50"] == 0
+        assert output[0]["error"]["data"]["coin_100"] == 0
+
+        assert output[1] == 404
 
     @pytest.mark.asyncio
     async def test_should_return_error_message_if_machine_is_not_ready(self):
@@ -381,7 +389,6 @@ class Test_Machine_Controller_Pay_For_Product:
             machine_service,
             order_service,
             payment_service,
-            machine_id,
         )
 
         output = await machine_controller.pay_for_product(
@@ -400,13 +407,15 @@ class Test_Machine_Controller_Pay_For_Product:
             )
         )
 
-        assert json.loads(output)["error"]["message"] == "machine is not READY for operation"
-        assert json.loads(output)["error"]["data"]["coin_01"] == 0
-        assert json.loads(output)["error"]["data"]["coin_05"] == 0
-        assert json.loads(output)["error"]["data"]["coin_10"] == 0
-        assert json.loads(output)["error"]["data"]["coin_25"] == 0
-        assert json.loads(output)["error"]["data"]["coin_50"] == 0
-        assert json.loads(output)["error"]["data"]["coin_100"] == 0
+        assert output[0]["error"]["message"] == "machine is not READY for operation"
+        assert output[0]["error"]["data"]["coin_01"] == 0
+        assert output[0]["error"]["data"]["coin_05"] == 0
+        assert output[0]["error"]["data"]["coin_10"] == 0
+        assert output[0]["error"]["data"]["coin_25"] == 0
+        assert output[0]["error"]["data"]["coin_50"] == 0
+        assert output[0]["error"]["data"]["coin_100"] == 0
+
+        assert output[1] == 400
 
     @pytest.mark.asyncio
     async def test_should_return_error_if_change_is_negative(self):
@@ -447,9 +456,7 @@ class Test_Machine_Controller_Pay_For_Product:
         payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
-        machine_controller = MachineController(
-            json_presenter, machine_service, order_service, payment_service, machine_id
-        )
+        machine_controller = MachineController(json_presenter, machine_service, order_service, payment_service)
 
         output = await machine_controller.pay_for_product(
             PayForProductInputControllerDTO(
@@ -467,13 +474,15 @@ class Test_Machine_Controller_Pay_For_Product:
             )
         )
 
-        assert json.loads(output)["error"]["message"] == "change can not be negative"
-        assert json.loads(output)["error"]["data"]["coin_01"] == 4
-        assert json.loads(output)["error"]["data"]["coin_05"] == 0
-        assert json.loads(output)["error"]["data"]["coin_10"] == 2
-        assert json.loads(output)["error"]["data"]["coin_25"] == 1
-        assert json.loads(output)["error"]["data"]["coin_50"] == 1
-        assert json.loads(output)["error"]["data"]["coin_100"] == 0
+        assert output[0]["error"]["message"] == "change can not be negative"
+        assert output[0]["error"]["data"]["coin_01"] == 4
+        assert output[0]["error"]["data"]["coin_05"] == 0
+        assert output[0]["error"]["data"]["coin_10"] == 2
+        assert output[0]["error"]["data"]["coin_25"] == 1
+        assert output[0]["error"]["data"]["coin_50"] == 1
+        assert output[0]["error"]["data"]["coin_100"] == 0
+
+        assert output[1] == 416
 
     @pytest.mark.asyncio
     async def test_should_raise_exception_if_product_does_not_exists(
@@ -516,9 +525,7 @@ class Test_Machine_Controller_Pay_For_Product:
         payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
-        machine_controller = MachineController(
-            json_presenter, machine_service, order_service, payment_service, machine_id
-        )
+        machine_controller = MachineController(json_presenter, machine_service, order_service, payment_service)
 
         output = await machine_controller.pay_for_product(
             PayForProductInputControllerDTO(
@@ -536,13 +543,15 @@ class Test_Machine_Controller_Pay_For_Product:
             )
         )
 
-        assert json.loads(output)["error"]["message"] == "product does not exists"
-        assert json.loads(output)["error"]["data"]["coin_01"] == 0
-        assert json.loads(output)["error"]["data"]["coin_05"] == 0
-        assert json.loads(output)["error"]["data"]["coin_10"] == 0
-        assert json.loads(output)["error"]["data"]["coin_25"] == 0
-        assert json.loads(output)["error"]["data"]["coin_50"] == 0
-        assert json.loads(output)["error"]["data"]["coin_100"] == 0
+        assert output[0]["error"]["message"] == "product does not exists"
+        assert output[0]["error"]["data"]["coin_01"] == 0
+        assert output[0]["error"]["data"]["coin_05"] == 0
+        assert output[0]["error"]["data"]["coin_10"] == 0
+        assert output[0]["error"]["data"]["coin_25"] == 0
+        assert output[0]["error"]["data"]["coin_50"] == 0
+        assert output[0]["error"]["data"]["coin_100"] == 0
+
+        assert output[1] == 404
 
     @pytest.mark.asyncio
     async def test_should_raise_exception_if_product_is_out_of_stock(
@@ -585,9 +594,7 @@ class Test_Machine_Controller_Pay_For_Product:
         payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
-        machine_controller = MachineController(
-            json_presenter, machine_service, order_service, payment_service, machine_id
-        )
+        machine_controller = MachineController(json_presenter, machine_service, order_service, payment_service)
 
         output = await machine_controller.pay_for_product(
             PayForProductInputControllerDTO(
@@ -606,15 +613,17 @@ class Test_Machine_Controller_Pay_For_Product:
         )
 
         assert (
-            json.loads(output)["error"]["message"]
+            output[0]["error"]["message"]
             == 'product - "' + products[0].id.value + '" - is not available in the machine'
         )
-        assert json.loads(output)["error"]["data"]["coin_01"] == 0
-        assert json.loads(output)["error"]["data"]["coin_05"] == 1
-        assert json.loads(output)["error"]["data"]["coin_10"] == 0
-        assert json.loads(output)["error"]["data"]["coin_25"] == 0
-        assert json.loads(output)["error"]["data"]["coin_50"] == 0
-        assert json.loads(output)["error"]["data"]["coin_100"] == 0
+        assert output[0]["error"]["data"]["coin_01"] == 0
+        assert output[0]["error"]["data"]["coin_05"] == 1
+        assert output[0]["error"]["data"]["coin_10"] == 0
+        assert output[0]["error"]["data"]["coin_25"] == 0
+        assert output[0]["error"]["data"]["coin_50"] == 0
+        assert output[0]["error"]["data"]["coin_100"] == 0
+
+        assert output[1] == 404
 
     @pytest.mark.asyncio
     async def test_should_raise_exception_if_machine_does_not_have_enough_coins_to_return(
@@ -657,9 +666,7 @@ class Test_Machine_Controller_Pay_For_Product:
         payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
-        machine_controller = MachineController(
-            json_presenter, machine_service, order_service, payment_service, machine_id
-        )
+        machine_controller = MachineController(json_presenter, machine_service, order_service, payment_service)
 
         output = await machine_controller.pay_for_product(
             PayForProductInputControllerDTO(
@@ -677,13 +684,15 @@ class Test_Machine_Controller_Pay_For_Product:
             )
         )
 
-        assert json.loads(output)["error"]["message"] == "not enough change in the machine"
-        assert json.loads(output)["error"]["data"]["coin_01"] == 0
-        assert json.loads(output)["error"]["data"]["coin_05"] == 0
-        assert json.loads(output)["error"]["data"]["coin_10"] == 0
-        assert json.loads(output)["error"]["data"]["coin_25"] == 0
-        assert json.loads(output)["error"]["data"]["coin_50"] == 1
-        assert json.loads(output)["error"]["data"]["coin_100"] == 1
+        assert output[0]["error"]["message"] == "not enough change in the machine"
+        assert output[0]["error"]["data"]["coin_01"] == 0
+        assert output[0]["error"]["data"]["coin_05"] == 0
+        assert output[0]["error"]["data"]["coin_10"] == 0
+        assert output[0]["error"]["data"]["coin_25"] == 0
+        assert output[0]["error"]["data"]["coin_50"] == 1
+        assert output[0]["error"]["data"]["coin_100"] == 1
+
+        assert output[1] == 404
 
     @pytest.mark.asyncio
     async def test_should_return_change(
@@ -726,9 +735,7 @@ class Test_Machine_Controller_Pay_For_Product:
         payment_service = PaymentService(order_repo, payment_repo)
 
         json_presenter = JSONPresenter()
-        machine_controller = MachineController(
-            json_presenter, machine_service, order_service, payment_service, machine_id
-        )
+        machine_controller = MachineController(json_presenter, machine_service, order_service, payment_service)
 
         output = await machine_controller.pay_for_product(
             PayForProductInputControllerDTO(
@@ -746,9 +753,11 @@ class Test_Machine_Controller_Pay_For_Product:
             )
         )
 
-        assert json.loads(output)["coin_01_qty"] == 0
-        assert json.loads(output)["coin_05_qty"] == 0
-        assert json.loads(output)["coin_10_qty"] == 0
-        assert json.loads(output)["coin_25_qty"] == 0
-        assert json.loads(output)["coin_50_qty"] == 0
-        assert json.loads(output)["coin_100_qty"] == 1
+        assert output[0]["coin_01_qty"] == 0
+        assert output[0]["coin_05_qty"] == 0
+        assert output[0]["coin_10_qty"] == 0
+        assert output[0]["coin_25_qty"] == 0
+        assert output[0]["coin_50_qty"] == 0
+        assert output[0]["coin_100_qty"] == 1
+
+        assert output[1] == 201
