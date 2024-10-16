@@ -2,9 +2,6 @@
 
 set -e
 
-# Create Users
-psql $POSTGRES_DB -c "CREATE USER $POSTGRES_APP_USER WITH PASSWORD '$POSTGRES_APP_PASSWORD' VALID UNTIL '2030-01-01' CONNECTION LIMIT $MAX_CONNECTIONS;"
-
 # Create Extentions
 psql $POSTGRES_DB -c "
     CREATE SCHEMA partman;
@@ -302,19 +299,29 @@ psql $POSTGRES_DB -c "
         END CASE;
     END;
     \$\$ LANGUAGE plpgsql;
+
+    CREATE OR REPLACE FUNCTION fn_delete_machine_products_partition_trigger()
+    RETURNS TRIGGER AS \$\$
+    DECLARE
+        schema_name TEXT;
+        table_name TEXT;
+        partition_name TEXT;
+    BEGIN
+        schema_name := 'machines_schema';
+        table_name := 'machine_products';
+        partition_name := schema_name || '.' || table_name || '_' || REPLACE(OLD.id::TEXT, '-', '');
+
+        EXECUTE format('DROP TABLE %s', partition_name);
+
+        RETURN NULL;
+    END;
+    \$\$ LANGUAGE plpgsql;
 "
 
-# Grant Permissions
+# Create Triggers
 psql $POSTGRES_DB -c "
-    GRANT CONNECT ON DATABASE $POSTGRES_DB TO $POSTGRES_APP_USER;
-
-    GRANT USAGE ON SCHEMA machines_schema TO $POSTGRES_APP_USER;
-    GRANT USAGE ON SCHEMA orders_schema TO $POSTGRES_APP_USER;
-    GRANT USAGE ON SCHEMA payments_schema TO $POSTGRES_APP_USER;
-    GRANT USAGE ON SCHEMA products_schema TO $POSTGRES_APP_USER;
-
-    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA machines_schema TO $POSTGRES_APP_USER;
-    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA orders_schema TO $POSTGRES_APP_USER;
-    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA payments_schema TO $POSTGRES_APP_USER;
-    GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA products_schema TO $POSTGRES_APP_USER;
+    CREATE TRIGGER after_machine_delete
+    AFTER DELETE ON machines_schema.machines
+    FOR EACH ROW
+    EXECUTE FUNCTION fn_delete_machine_products_partition_trigger();
 "
