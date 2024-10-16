@@ -11,8 +11,8 @@ ENV PGADMIN_DEFAULT_PASSWORD=${pg_admin_pass}
 
 USER root
 
-COPY ./scripts/pg_admin/config.json /pgadmin4/pgadmin_config.json
-COPY ./scripts/pg_admin/custom.pgpass /pgadmin4/.pgpass
+COPY ./scripts/test/pg_admin/config.json /pgadmin4/pgadmin_config.json
+COPY ./scripts/test/pg_admin/custom.pgpass /pgadmin4/.pgpass
 
 ENV PGADMIN_SERVER_JSON_FILE="/pgadmin4/pgadmin_config.json"
 

@@ -19,7 +19,7 @@ ENV MAX_CONNECTIONS=100
 
 USER root
 
-COPY ./scripts/postgresql/postgres.conf.tpl /etc/postgres.conf.tpl
+COPY ./scripts/dev/postgresql/postgres.conf.tpl /etc/postgres.conf.tpl
 
 RUN apt-get update
 RUN apt-get install -y nano
