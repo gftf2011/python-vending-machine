@@ -176,14 +176,6 @@ psql $POSTGRES_DB -c "
     SELECT cron.schedule('clean_jobs_log_job', '0 0 * * *', 'DELETE FROM cron.job_run_details WHERE end_time < now() - interval ''7 days''');
 "
 
-# Insert Products
-psql $POSTGRES_DB -c "
-    INSERT INTO products_schema.products (id, name, unit_price) VALUES ('223e4567-e89b-12d3-a456-426614174003', 'Pepsi', 150);
-    INSERT INTO products_schema.products (id, name, unit_price) VALUES ('223e4567-e89b-12d3-a456-426614174004', 'Butterfinger', 50);
-    INSERT INTO products_schema.products (id, name, unit_price) VALUES ('223e4567-e89b-12d3-a456-426614174005', 'Hershey''s', 75);
-    INSERT INTO products_schema.products (id, name, unit_price) VALUES ('223e4567-e89b-12d3-a456-426614174006', 'Twix Candy Bars', 95);
-"
-
 # Super User Functions
 psql $POSTGRES_DB -c "
     CREATE TYPE product_type AS (

@@ -1,5 +1,9 @@
+from typing import Any
+
 import pytest
 import pytest_asyncio
+
+from fastapi.testclient import TestClient
 
 from src.services.contracts.database.base import IDatabaseTransaction
 
@@ -7,6 +11,7 @@ from src.infra.database.postgres.psycopg2_transaction import Psycopg2Transaction
 from src.infra.database.postgres.connection.psycopg2_connection import Psycopg2PoolConnection
 
 from src.main.bootstrap.bootstrap import load
+from src.main.configs.app import application
 from src.main.loaders.loaders import loader
 
 
@@ -16,13 +21,12 @@ def make_transaction() -> IDatabaseTransaction:
     return query_runner
 
 
-class Test_Psycopg2_Transaction:
+class Test_E2E_Choose_Product:
     @pytest_asyncio.fixture(scope="class", autouse=True)
     async def bootstrap_and_load(self):
         load()
         await loader()
         yield
-        await Psycopg2PoolConnection.get_instance().disconnect()
 
     @pytest_asyncio.fixture(scope="function", autouse=True)
     async def manage_data(self):
@@ -117,7 +121,22 @@ class Test_Psycopg2_Transaction:
         await transaction.release()
 
     @pytest.mark.asyncio
-    async def test_should_commit_transaction(self):
+    async def test_should_status_code_be_404_when_choose_product_is_called(self):
+        client = TestClient(application())
+
+        response = client.get("/v1/machine/a8351752-ec32-4578-bdb6-883d703cbee7/choose_product/01")
+
+        assert response.status_code == 404
+        assert response.json() == {
+            "detail": {
+                "error": {
+                    "message": 'machine - "a8351752-ec32-4578-bdb6-883d703cbee7" - is not registered in the system'
+                }
+            }
+        }
+
+    @pytest.mark.asyncio
+    async def test_should_status_code_be_404_when_choose_product_is_called_and_product_does_not_exists(self):
         transaction = make_transaction()
 
         await transaction.create_client()
@@ -163,22 +182,17 @@ class Test_Psycopg2_Transaction:
         )
 
         await transaction.commit()
-
-        await transaction.query(
-            {
-                "text": "SELECT * FROM machines_schema.machines WHERE id = %s LIMIT 1",
-                "values": ("a8351752-ec32-4578-bdb6-883d703cbee7",),
-            }
-        )
-
-        rows = await transaction.fetchall()
-
         await transaction.release()
 
-        assert rows[0]["id"] == "a8351752-ec32-4578-bdb6-883d703cbee7"
+        client = TestClient(application())
+
+        response = client.get("/v1/machine/a8351752-ec32-4578-bdb6-883d703cbee7/choose_product/03")
+
+        assert response.status_code == 404
+        assert response.json() == {"detail": {"error": {"message": "product does not exists"}}}
 
     @pytest.mark.asyncio
-    async def test_should_rollback_transaction(self):
+    async def test_should_status_code_be_200_when_choose_product_is_called(self):
         transaction = make_transaction()
 
         await transaction.create_client()
@@ -223,17 +237,16 @@ class Test_Psycopg2_Transaction:
             }
         )
 
-        await transaction.rollback()
-
-        await transaction.query(
-            {
-                "text": "SELECT * FROM machines_schema.machines WHERE id = %s LIMIT 1",
-                "values": ("a8351752-ec32-4578-bdb6-883d703cbee7",),
-            }
-        )
-
-        rows = await transaction.fetchall()
-
+        await transaction.commit()
         await transaction.release()
 
-        assert len(rows) == 0
+        client = TestClient(application())
+
+        response = client.get("/v1/machine/a8351752-ec32-4578-bdb6-883d703cbee7/choose_product/01")
+
+        assert response.status_code == 200
+        assert response.json() == {
+            "product_id": "223e4567-e89b-12d3-a456-426614174003",
+            "product_name": "Pepsi",
+            "product_price": 150,
+        }
