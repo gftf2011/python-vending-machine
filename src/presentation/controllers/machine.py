@@ -14,47 +14,18 @@ from src.domain.contracts.dtos.order import CreateOrderInputDTO, CreateOrderOutp
 from src.domain.contracts.dtos.payment import (
     PayForProductInputDTO,
 )
-from src.domain.entities.payment import PaymentType
 
 from src.domain.contracts.services.machine import IMachineService
 from src.domain.contracts.services.order import IOrderService
 from src.domain.contracts.services.payment import IPaymentService
 
+from src.services.contracts.controllers.machine import (
+    ChooseProductInputControllerDTO,
+    PayForProductInputControllerDTO,
+    IMachineController,
+)
+
 from src.presentation.contracts.presenters.base import BasePresenter
-
-
-class ChooseProductInputControllerDTO:
-    def __init__(self, product_code: str, machine_id: str):
-        self.product_code = product_code
-        self.machine_id = machine_id
-
-
-class PayForProductInputControllerDTO:
-    def __init__(
-        self,
-        machine_id: str,
-        product_id: str,
-        product_qty: int,
-        payment_type: PaymentType,
-        coin_01_qty: int,
-        coin_05_qty: int,
-        coin_10_qty: int,
-        coin_25_qty: int,
-        coin_50_qty: int,
-        coin_100_qty: int,
-        order_created_at: str,
-    ):
-        self.machine_id = machine_id
-        self.product_id = product_id
-        self.product_qty = product_qty
-        self.payment_type = payment_type
-        self.coin_01_qty = coin_01_qty
-        self.coin_05_qty = coin_05_qty
-        self.coin_10_qty = coin_10_qty
-        self.coin_25_qty = coin_25_qty
-        self.coin_50_qty = coin_50_qty
-        self.coin_100_qty = coin_100_qty
-        self.order_created_at = order_created_at
 
 
 class ChooseProductErrorOutputControllerDTO(BaseOutput):
@@ -100,7 +71,7 @@ class PayForProductErrorOutputControllerDTO(BaseOutput):
         }
 
 
-class MachineController:
+class MachineController(IMachineController):
     def __init__(
         self,
         presenter: BasePresenter,

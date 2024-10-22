@@ -1,6 +1,5 @@
 from datetime import datetime
 
-import json
 import pytest
 
 from src.domain.entities.machine import MachineEntity, MachineState
@@ -8,9 +7,12 @@ from src.domain.entities.owner import OwnerEntity
 from src.domain.entities.product import ProductEntity
 from src.domain.entities.payment import PaymentType
 
-from src.presentation.controllers.machine import (
+from src.services.contracts.controllers.machine import (
     ChooseProductInputControllerDTO,
     PayForProductInputControllerDTO,
+)
+
+from src.presentation.controllers.machine import (
     MachineController,
 )
 

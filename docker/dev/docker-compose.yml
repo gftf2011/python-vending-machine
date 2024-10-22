@@ -17,8 +17,6 @@ services:
     volumes:
       - ./scripts/dev/postgresql/init.sh:/docker-entrypoint-initdb.d/init.sh
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
     healthcheck:
       test:
         [
@@ -29,6 +27,8 @@ services:
       retries: 10
       start_period: 30s
       timeout: 30s
+    networks:
+      - app_network
 
   pg_admin:
     container_name: pg_admin_dev
@@ -45,6 +45,29 @@ services:
     depends_on:
       postgresql:
         condition: service_healthy
+    networks:
+      - app_network
+
+  python:
+    container_name: python_dev
+    build:
+      context: .
+      dockerfile: ./docker/dev/images/python/Dockerfile
+      args:
+        python_host: "0.0.0.0"
+        python_port: 8000
+    restart: always
+    ports:
+      - 8000:8000
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - app_network
 
 volumes:
   postgres_data: {}
+
+networks:
+  app_network:
+    driver: bridge

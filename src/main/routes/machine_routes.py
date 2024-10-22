@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status
 from src.main.factories.controllers.machine_factory import make_machine_controller
 from src.main.factories.infra.database_conn import make_conn
 
-from src.presentation.controllers.machine import ChooseProductInputControllerDTO
+from src.services.contracts.controllers.machine import ChooseProductInputControllerDTO
 
 router = APIRouter()
 

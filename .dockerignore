@@ -1,0 +1,10 @@
+.venv
+.vscode
+cmds/
+env/
+scripts/
+test/
+.gitignore
+docker-compose.yml
+poetry.lock
+vending-machine-arch.excalidraw

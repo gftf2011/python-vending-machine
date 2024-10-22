@@ -2,17 +2,17 @@ from typing import Any
 
 from src.services.contracts.database.base import IDatabaseTransaction
 
-from src.presentation.controllers.machine import (
-    MachineController,
+from src.services.contracts.controllers.machine import (
+    IMachineController,
     ChooseProductInputControllerDTO,
     PayForProductInputControllerDTO,
 )
 
 
-class MachineTransactionDecorator(MachineController):
+class MachineTransactionDecorator(IMachineController):
     def __init__(
         self,
-        decoratee: MachineController,
+        decoratee: IMachineController,
         transaction: IDatabaseTransaction,
     ):
         self._decoratee = decoratee
