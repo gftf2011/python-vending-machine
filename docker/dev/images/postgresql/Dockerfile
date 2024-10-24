@@ -15,7 +15,7 @@ ENV POSTGRES_USER=${postgres_root_user}
 ENV POSTGRES_PASSWORD=${postgres_root_password}
 ENV POSTGRES_DB=${postgres_db}
 ENV POSTGRES_PORT=${postgres_port}
-ENV MAX_CONNECTIONS=100
+ENV MAX_CONNECTIONS=10
 
 USER root
 

@@ -53,9 +53,6 @@ services:
     build:
       context: .
       dockerfile: ./docker/dev/images/python/Dockerfile
-      args:
-        python_host: "0.0.0.0"
-        python_port: 8000
     restart: always
     ports:
       - 8000:8000

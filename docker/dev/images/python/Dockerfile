@@ -1,12 +1,11 @@
 FROM python:3.12.7
 
-ARG python_host
-ARG python_port
+RUN apt-get update && apt-get install -y curl
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ENV POETRY_VERSION=1.8.3
-ENV POETRY_VIRTUALENVS_CREATE=false
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
-RUN pip install "poetry==$POETRY_VERSION"
+ENV PATH="/root/.local/bin:$PATH"
 
 WORKDIR /app
 
@@ -14,6 +13,6 @@ COPY . .
 
 RUN poetry install --no-root --no-interaction --no-ansi
 
-EXPOSE ${python_port}
+EXPOSE 8000
 
-CMD ["poetry", "run", "uvicorn", "src.main.app:init", "--host", "${python_host}", "--port", "${python_port}", "--factory"]
+CMD ["poetry", "run", "uvicorn", "src.main.app:init", "--host", "0.0.0.0", "--port", "8000", "--factory"]
