@@ -23,7 +23,7 @@ class Psycopg2MachineRepository(IMachineRepository):
         await self._query_runner.query(machine_query_input)
         machine_rows = await self._query_runner.fetchall()
 
-        if len(machine_rows) is 0:
+        if len(machine_rows) == 0:
             return None
 
         owner_query_input: QueryInput = {
@@ -33,7 +33,7 @@ class Psycopg2MachineRepository(IMachineRepository):
         await self._query_runner.query(owner_query_input)
         owner_rows = await self._query_runner.fetchall()
 
-        if len(owner_rows) is 0:
+        if len(owner_rows) == 0:
             return None
 
         machine_products_query_input: QueryInput = {
@@ -60,9 +60,9 @@ class Psycopg2MachineRepository(IMachineRepository):
                 ProductEntity.create(
                     id=product["product_id"],
                     name=product["name"],
-                    qty=product["qty"],
+                    qty=int(product["qty"]),
                     code=product["code"],
-                    unit_price=product["unit_price"],
+                    unit_price=int(product["unit_price"]),
                 )
             )
 

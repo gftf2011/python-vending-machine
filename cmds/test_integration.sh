@@ -1,13 +1,18 @@
 #!/bin/bash
 
+# Remove python cache
+find . | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
+
 # Clean Docker
-docker-compose down && docker image prune -a -f && docker volume prune -f && docker system prune -f
+docker-compose down && docker image prune -a -f && docker volume rm $(docker volume ls -q) && docker system prune -f
 
 # Copy Docker
-rm -rf docker-compose.yml && cat docker/test/docker-compose.yml >> docker-compose.yml
+rm -rf docker-compose.yml || true
+cat docker/test/docker-compose.yml >> docker-compose.yml
 
 # Copy .env
-rm -rf .env && cat ./env/test/.env >> .env
+rm -rf .env || true
+cat ./env/test/.env >> .env
 
 # Make script executable
 chmod +x ./scripts/test/postgresql/init.sh

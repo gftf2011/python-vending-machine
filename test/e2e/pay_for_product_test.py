@@ -19,7 +19,7 @@ def make_transaction() -> IDatabaseTransaction:
     return query_runner
 
 
-class Test_E2E_Choose_Product:
+class Test_E2E_Pay_For_Product:
     @pytest_asyncio.fixture(scope="class", autouse=True)
     async def bootstrap_and_load(self):
         load()
@@ -119,22 +119,161 @@ class Test_E2E_Choose_Product:
         await transaction.release()
 
     @pytest.mark.asyncio
-    async def test_should_status_code_be_404_when_choose_product_is_called(self):
+    async def test_should_status_code_be_201_when_pay_for_product_is_called(self):
+        transaction = make_transaction()
+
+        await transaction.create_client()
+        await transaction.open_transaction()
+
+        await transaction.query(
+            {
+                "text": """
+                    SELECT fn_create_machine_partition(
+                        ROW(
+                            'a8351752-ec32-4578-bdb6-883d703cbee7'::UUID,
+                            'READY'::machine_state,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                        )::machine_type,
+                        ROW(
+                            '223e4567-e89b-12d3-a456-426614174001'::UUID,
+                            'Jane Doe',
+                            'jane.doe@example.com'
+                        )::owner_type,
+                        ARRAY[
+                            ROW(
+                                '223e4567-e89b-12d3-a456-426614174003'::UUID,
+                                'Pepsi',
+                                150,
+                                10
+                            )::product_type,
+                            ROW(
+                                '223e4567-e89b-12d3-a456-426614174004'::UUID,
+                                'Butterfinger',
+                                50,
+                                2
+                            )::product_type
+                        ]::product_type[]
+                    );
+                """,
+                "values": [],
+            }
+        )
+
+        await transaction.commit()
+        await transaction.release()
+
         client = TestClient(application())
 
-        response = client.get("/v1/machine/a8351752-ec32-4578-bdb6-883d703cbee7/choose_product/01")
+        response = client.post(
+            "/v1/machine/a8351752-ec32-4578-bdb6-883d703cbee7/pay_for_product/223e4567-e89b-12d3-a456-426614174003?product_qty=1&payment_type=CASH",
+            json={
+                "coin_01_qty": 0,
+                "coin_05_qty": 0,
+                "coin_10_qty": 0,
+                "coin_25_qty": 0,
+                "coin_50_qty": 1,
+                "coin_100_qty": 1,
+            },
+        )
+
+        assert response.status_code == 201
+        assert response.json() == {
+            "amount_paid": 150,
+            "coin_01_qty": 0,
+            "coin_05_qty": 0,
+            "coin_10_qty": 0,
+            "coin_25_qty": 0,
+            "coin_50_qty": 0,
+            "coin_100_qty": 0,
+        }
+
+    @pytest.mark.asyncio
+    async def test_should_status_code_be_404_when_pay_for_product_is_called_and_machine_is_not_found(self):
+        transaction = make_transaction()
+
+        await transaction.create_client()
+        await transaction.open_transaction()
+
+        await transaction.query(
+            {
+                "text": """
+                    SELECT fn_create_machine_partition(
+                        ROW(
+                            'a8351752-ec32-4578-bdb6-883d703cbee7'::UUID,
+                            'READY'::machine_state,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                        )::machine_type,
+                        ROW(
+                            '223e4567-e89b-12d3-a456-426614174001'::UUID,
+                            'Jane Doe',
+                            'jane.doe@example.com'
+                        )::owner_type,
+                        ARRAY[
+                            ROW(
+                                '223e4567-e89b-12d3-a456-426614174003'::UUID,
+                                'Pepsi',
+                                150,
+                                10
+                            )::product_type,
+                            ROW(
+                                '223e4567-e89b-12d3-a456-426614174004'::UUID,
+                                'Butterfinger',
+                                50,
+                                2
+                            )::product_type
+                        ]::product_type[]
+                    );
+                """,
+                "values": [],
+            }
+        )
+
+        await transaction.commit()
+        await transaction.release()
+
+        client = TestClient(application())
+
+        response = client.post(
+            "/v1/machine/a8351752-ec32-4578-bdb6-883d703cbee8/pay_for_product/223e4567-e89b-12d3-a456-426614174003?product_qty=1&payment_type=CASH",
+            json={
+                "coin_01_qty": 0,
+                "coin_05_qty": 0,
+                "coin_10_qty": 0,
+                "coin_25_qty": 0,
+                "coin_50_qty": 1,
+                "coin_100_qty": 1,
+            },
+        )
 
         assert response.status_code == 404
         assert response.json() == {
             "detail": {
                 "error": {
-                    "message": 'machine - "a8351752-ec32-4578-bdb6-883d703cbee7" - is not registered in the system'
+                    "message": 'machine - "a8351752-ec32-4578-bdb6-883d703cbee8" - is not registered in the system',
+                    "data": {
+                        "coin_01": 0,
+                        "coin_05": 0,
+                        "coin_10": 0,
+                        "coin_25": 0,
+                        "coin_50": 1,
+                        "coin_100": 1,
+                    },
                 }
             }
         }
 
     @pytest.mark.asyncio
-    async def test_should_status_code_be_404_when_choose_product_is_called_and_product_does_not_exists(self):
+    async def test_should_status_code_be_404_when_pay_for_product_is_called_and_product_is_not_found(self):
         transaction = make_transaction()
 
         await transaction.create_client()
@@ -184,67 +323,31 @@ class Test_E2E_Choose_Product:
 
         client = TestClient(application())
 
-        response = client.get("/v1/machine/a8351752-ec32-4578-bdb6-883d703cbee7/choose_product/03")
+        response = client.post(
+            "/v1/machine/a8351752-ec32-4578-bdb6-883d703cbee7/pay_for_product/223e4567-e89b-12d3-a456-426614174005?product_qty=1&payment_type=CASH",
+            json={
+                "coin_01_qty": 0,
+                "coin_05_qty": 0,
+                "coin_10_qty": 0,
+                "coin_25_qty": 0,
+                "coin_50_qty": 0,
+                "coin_100_qty": 0,
+            },
+        )
 
         assert response.status_code == 404
-        assert response.json() == {"detail": {"error": {"message": "product does not exists"}}}
-
-    @pytest.mark.asyncio
-    async def test_should_status_code_be_200_when_choose_product_is_called(self):
-        transaction = make_transaction()
-
-        await transaction.create_client()
-        await transaction.open_transaction()
-
-        await transaction.query(
-            {
-                "text": """
-                    SELECT fn_create_machine_partition(
-                        ROW(
-                            'a8351752-ec32-4578-bdb6-883d703cbee7'::UUID,
-                            'READY'::machine_state,
-                            0,
-                            0,
-                            0,
-                            0,
-                            0,
-                            0
-                        )::machine_type,
-                        ROW(
-                            '223e4567-e89b-12d3-a456-426614174001'::UUID,
-                            'Jane Doe',
-                            'jane.doe@example.com'
-                        )::owner_type,
-                        ARRAY[
-                            ROW(
-                                '223e4567-e89b-12d3-a456-426614174003'::UUID,
-                                'Pepsi',
-                                150,
-                                10
-                            )::product_type,
-                            ROW(
-                                '223e4567-e89b-12d3-a456-426614174004'::UUID,
-                                'Butterfinger',
-                                50,
-                                2
-                            )::product_type
-                        ]::product_type[]
-                    );
-                """,
-                "values": [],
-            }
-        )
-
-        await transaction.commit()
-        await transaction.release()
-
-        client = TestClient(application())
-
-        response = client.get("/v1/machine/a8351752-ec32-4578-bdb6-883d703cbee7/choose_product/01")
-
-        assert response.status_code == 200
         assert response.json() == {
-            "product_id": "223e4567-e89b-12d3-a456-426614174003",
-            "product_name": "Pepsi",
-            "product_price": 150,
+            "detail": {
+                "error": {
+                    "message": "product does not exists",
+                    "data": {
+                        "coin_01": 0,
+                        "coin_05": 0,
+                        "coin_10": 0,
+                        "coin_25": 0,
+                        "coin_50": 0,
+                        "coin_100": 0,
+                    },
+                }
+            }
         }

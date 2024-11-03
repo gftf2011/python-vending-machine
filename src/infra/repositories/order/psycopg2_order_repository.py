@@ -46,7 +46,7 @@ class Psycopg2OrderRepository(IOrderRepository):
         await self._query_runner.query(order_query_input)
         order_rows = await self._query_runner.fetchall()
 
-        if len(order_rows) is 0:
+        if len(order_rows) == 0:
             return None
 
         order_items_query_input: QueryInput = {
@@ -88,7 +88,7 @@ class Psycopg2OrderRepository(IOrderRepository):
         await self._query_runner.query(order_items_query_input)
         order_items_rows = await self._query_runner.fetchall()
 
-        if len(order_items_rows) is 0:
+        if len(order_items_rows) == 0:
             return None
 
         order_item_list: list[OrderItemEntity] = []
@@ -131,7 +131,7 @@ class Psycopg2OrderRepository(IOrderRepository):
         await self._query_runner.query(order_query_input)
         order_rows = await self._query_runner.fetchall()
 
-        if len(order_rows) is 0:
+        if len(order_rows) == 0:
             return None
 
         order: OrderEntity = OrderEntity.create(
@@ -146,6 +146,7 @@ class Psycopg2OrderRepository(IOrderRepository):
         return order
 
     async def save(self, entity: OrderEntity) -> None:
+        print(entity.order_items[0].product.qty)
         order_query_input: QueryInput = {
             "text": """INSERT INTO orders_schema.orders (
                 id,
@@ -168,6 +169,8 @@ class Psycopg2OrderRepository(IOrderRepository):
         await self._query_runner.query(order_query_input)
 
         for order_item in entity.order_items:
+            print(order_item.qty)
+            print(order_item.product.qty)
             counter = 0
             while counter < order_item.qty:
                 order_item.product.reduce_qty()

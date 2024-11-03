@@ -127,6 +127,7 @@ class MachineService(IMachineService):
         machine_found: MachineEntity = await self.__machine_repo.find_by_id(
             UUIDValueObject.create(input_dto.machine_id)
         )
+
         if not machine_found:
             raise UnregisteredMachineException(input_dto.machine_id)
 

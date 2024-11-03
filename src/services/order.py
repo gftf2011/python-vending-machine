@@ -42,6 +42,7 @@ class OrderService(IOrderService):
         machine_found: MachineEntity = await self.__machine_repo.find_by_id(
             UUIDValueObject.create(input_dto.machine_id)
         )
+
         if not machine_found:
             raise UnregisteredMachineException(input_dto.machine_id)
 
@@ -56,10 +57,11 @@ class OrderService(IOrderService):
         product_order: ProductEntity = ProductEntity.create(
             product_found.id.value,
             product_found.name,
-            input_dto.product_qty,
+            product_found.qty,
             product_found.code,
             product_found.unit_price,
         )
+
         order_item: OrderItemEntity = OrderItemEntity.create_new(
             UUIDValueObject.create_new().value, input_dto.product_qty, product_order
         )

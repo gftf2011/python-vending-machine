@@ -18,4 +18,4 @@ chmod +x ./scripts/test/postgresql/init.sh
 docker-compose up -d --remove-orphans
 
 # Run integration test
-poetry run pytest test/e2e/
+poetry run pytest test/
