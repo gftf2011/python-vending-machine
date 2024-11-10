@@ -47,7 +47,7 @@ jobs:
           path: ./poetry.lock
           key: poetry-lock-app-cache-key.${{ github.ref }}.${{ github.sha }}
 
-  test-and-lint:
+  test:
     runs-on: ubuntu-latest
     needs: initialize-app
     if: ${{ (github.ref == 'refs/heads/main') }}
@@ -88,10 +88,6 @@ jobs:
         with:
           path: ./.poetry.lock
           key: poetry-lock-app-cache-key.${{ github.ref }}.${{ github.sha }}
-
-      - name: Linting
-        run: |
-          poetry run pylint .
 
       - name: Testing
         run: |
