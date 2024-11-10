@@ -89,9 +89,9 @@ jobs:
           path: ./.poetry.lock
           key: poetry-lock-app-cache-key.${{ github.ref }}.${{ github.sha }}
 
-      # - name: Linting
-      #   run: |
-      #     poetry run pylint .
+      - name: Linting
+        run: |
+          poetry run pylint .
 
       - name: Testing
         run: |
