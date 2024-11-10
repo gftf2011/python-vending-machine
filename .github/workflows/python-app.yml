@@ -35,6 +35,13 @@ jobs:
           pip install poetry==1.8.3
           poetry install --no-root --no-interaction --no-ansi
 
+      - name: Cache Poetry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pypoetry
+          key: poetry-cache.${{ github.ref }}.${{ github.sha }}
+
       - name: Cache .venv
         uses: actions/cache@v3
         with:
@@ -44,7 +51,7 @@ jobs:
       - name: Cache poetry.lock
         uses: actions/cache@v3
         with:
-          path: ./.venv
+          path: ./poetry.lock
           key: poetry-lock-app-cache-key.${{ github.ref }}.${{ github.sha }}
 
   test-and-lint:
@@ -61,10 +68,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install docker-compose -y
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Cache Poetry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pypoetry
+          key: poetry-cache.${{ github.ref }}.${{ github.sha }}
 
       - name: Use Cached venv
         uses: actions/cache@v3
@@ -75,7 +94,7 @@ jobs:
       - name: Use Cached poetry.lock
         uses: actions/cache@v3
         with:
-          path: ./.venv
+          path: ./.poetry.lock
           key: poetry-lock-app-cache-key.${{ github.ref }}.${{ github.sha }}
 
       # - name: Linting
@@ -84,6 +103,4 @@ jobs:
 
       - name: Testing
         run: |
-          sudo apt-get update
-          sudo apt-get install docker-compose -y
           ./cmds/test_all.sh
