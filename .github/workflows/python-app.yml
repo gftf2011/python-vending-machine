@@ -84,6 +84,6 @@ jobs:
 
       - name: Testing
         run: |
-          # sudo apt-get update
-          # sudo apt-get install docker-compose -y
+          sudo apt-get update
+          sudo apt-get install docker-compose -y
           ./cmds/test_all.sh
