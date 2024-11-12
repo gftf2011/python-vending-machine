@@ -18,7 +18,7 @@
 <br/>
 
 <div align="center">
-  <img src="https://github.com/gftf2011/python-vending-machine/blob/main/.github/images/background.jpeg" />
+  <img src="https://github.com/gftf2011/python-vending-machine/blob/main/.github/images/background.png" />
 </div>
 
 <br/>
@@ -37,7 +37,7 @@ We will be exploring many advanced concepts of databases such as partitioning an
 
 - [x] Mac OS
 - [x] Linux
-- [x] Windows - WSL 
+- [x] Windows - WSL
 
 <br/>
 
@@ -49,7 +49,6 @@ We will be exploring many advanced concepts of databases such as partitioning an
 - [Factory Method](https://refactoring.guru/design-patterns/factory-method)
 - [Builder](https://refactoring.guru/design-patterns/builder)
 - [Singleton](https://refactoring.guru/design-patterns/singleton)
-
 
 ### Structural
 
@@ -82,6 +81,7 @@ We will be exploring many advanced concepts of databases such as partitioning an
 <br/>
 
 ## :racing_car: Running Project
+
 ```sh
   $ python -m pip install --upgrade pip
   $ pip install poetry==1.8.3
@@ -96,21 +96,25 @@ We will be exploring many advanced concepts of databases such as partitioning an
 ## :test_tube: Running Tests
 
 > ### Unit Tests
+
 ```sh
   $ ./cmds/test_unit.sh
 ```
 
 > ### Integration Tests
+
 ```sh
   $ ./cmds/test_integration.sh
 ```
 
 > ### E2E Tests
+
 ```sh
   $ ./cmds/test_e2e.sh
 ```
 
 > ### Full Test Coverage Report
+
 ```sh
   $ ./cmds/test_all.sh
 ```
