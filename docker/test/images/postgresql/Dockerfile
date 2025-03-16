@@ -21,11 +21,19 @@ USER root
 
 COPY ./scripts/test/postgresql/postgres.conf.tpl /etc/postgres.conf.tpl
 
-RUN apt-get update
-RUN apt-get install -y nano
-RUN apt-get install -y gettext-base
-RUN apt-get install -y postgresql-16-partman
-RUN apt-get install -y postgresql-16-cron
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        nano \
+        gettext-base \
+        postgresql-16-partman \
+        postgresql-16-cron && \
+    rm -rf /var/lib/apt/lists/*
+
+# RUN apt-get update
+# RUN apt-get install -y nano
+# RUN apt-get install -y gettext-base
+# RUN apt-get install -y postgresql-16-partman
+# RUN apt-get install -y postgresql-16-cron
 
 RUN touch /etc/postgresql/postgres.conf
 

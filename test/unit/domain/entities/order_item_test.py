@@ -38,7 +38,18 @@ def test_should_create():
     product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0)
     sut = OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", 1, product, datetime(1970, 1, 1))
     assert sut.id.value == "f3331752-6c11-4578-adb7-331d703cb445"
-    assert sut.price == product.unit_price
+    assert sut.price == product.unit_price * product.qty
+    assert sut.qty == product.qty
+    assert sut.product.id.value == product.id.value
+    assert sut.created_at.timestamp() == 0
+
+
+def test_should_create_with_qty_with_2():
+    """Function to test if AN EXISTING order_item is created with right parameters"""
+    product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 2, "00", 25)
+    sut = OrderItemEntity.create("f3331752-6c11-4578-adb7-331d703cb445", 2, product, datetime(1970, 1, 1))
+    assert sut.id.value == "f3331752-6c11-4578-adb7-331d703cb445"
+    assert sut.price == product.unit_price * product.qty
     assert sut.qty == product.qty
     assert sut.product.id.value == product.id.value
     assert sut.created_at.timestamp() == 0
@@ -49,7 +60,18 @@ def test_should_create_new():
     product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 1, "00", 0)
     sut = OrderItemEntity.create_new("f3331752-6c11-4578-adb7-331d703cb445", 1, product)
     assert sut.id.value == "f3331752-6c11-4578-adb7-331d703cb445"
-    assert sut.price == product.unit_price
+    assert sut.price == product.unit_price * product.qty
+    assert sut.qty == product.qty
+    assert sut.product.id.value == product.id.value
+    assert sut.created_at.timestamp() < datetime.now().timestamp()
+
+
+def test_should_create_new_with_qty_with_2():
+    """Function to test if A NON-EXISTING order_item is created with right parameters"""
+    product: ProductEntity = ProductEntity.create("b9651752-6c44-4578-bdb6-883d703cbff5", "Hersheys", 2, "00", 25)
+    sut = OrderItemEntity.create_new("f3331752-6c11-4578-adb7-331d703cb445", 2, product)
+    assert sut.id.value == "f3331752-6c11-4578-adb7-331d703cb445"
+    assert sut.price == product.unit_price * product.qty
     assert sut.qty == product.qty
     assert sut.product.id.value == product.id.value
     assert sut.created_at.timestamp() < datetime.now().timestamp()
