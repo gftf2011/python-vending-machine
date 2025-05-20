@@ -1,5 +1,5 @@
 <div align="center">
-	<h1>CLEAN Python Vending Machine • :snake: :computer:</h1>
+	<h1>(STUDY) CLEAN Python Vending Machine • :snake: :computer:</h1>
 </div>
 
 <br/>
